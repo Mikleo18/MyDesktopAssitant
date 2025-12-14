@@ -25,4 +25,18 @@
     <PathGeometry x:Key="minimize" Figures="M19 13H5a1 1 0 0 1 0-2h14a1 1 0 0 1 0 2z"/>
     <PathGeometry x:Key="close" Figures="M13.41 12l4.3-4.29a1 1 0 1 0-1.42-1.42L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42l4.3 4.29-4.3 4.29a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l4.29-4.3 4.29 4.3a1 1 0 0 0 1.42 0 1 1 0 0 0 0-1.42z"/>
 
+    <!-- Music Player Icons -->
+    <PathGeometry x:Key="icon_play" Figures="M8,5.14V19.14L19,12.14L8,5.14Z" />
+    <PathGeometry x:Key="icon_pause" Figures="M14,19H18V5H14M6,19H10V5H6V19Z" />
+    <PathGeometry x:Key="icon_next" Figures="M16,18H18V6H16M6,18L14.5,12L6,6V18Z" />
+    <PathGeometry x:Key="icon_prev" Figures="M6,6H8V18H6M9.5,12L18,18V6L9.5,12Z" />
+    <!--<PathGeometry x:Key="icon_rewind" Figures="M12.5,8c-2.65,0-5.05,0.99-6.9,2.6L2,7v9h9l-3.62-3.62c1.39-1.16,3.16-1.88,5.12-1.88c3.54,0,6.55,2.31,7.6,5.5l2.37-0.78C21.08,11.03,17.15,8,12.5,8z M7,12v2h2v2H7v2H5v-2H3v-2h2v-2H7z" />
+    <PathGeometry x:Key="icon_forward" Figures="M11.5,8c4.65,0,8.58,3.03,9.96,7.22l-2.37,0.78c-1.05-3.19-4.05-5.5-7.6-5.5c-1.95,0-3.73,0.72-5.12,1.88L10,16H1v-9l3.6,3.6C6.45,8.99,8.85,8,11.5,8z M17,12v2h2v2h-2v2h-2v-2h-2v-2h2v-2H17z" />-->
+    <PathGeometry x:Key="icon_rewind" Figures="M11.5,12L20,18V6M11,18V6L2.5,12L11,18Z" />
+    <PathGeometry x:Key="icon_forward" Figures="M4,18L12.5,12L4,6V18M13,6V18L21.5,12L13,6Z" />
+    <PathGeometry x:Key="icon_trash" Figures="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
+    <PathGeometry x:Key="icon_add" Figures="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+    <PathGeometry x:Key="icon_shuffle" Figures="M14.83,13.41L13.42,14.83L16.55,17.95L14.5,20H20V14.5L17.96,16.54L14.83,13.41M14.5,4L16.54,6.04L4,18.59L5.41,20L17.96,7.46L20,9.5V4H14.5M10.59,9.17L5.41,4L4,5.41L9.17,10.58L10.59,9.17Z" />
+    <PathGeometry x:Key="icon_repeat" Figures="M17,17H7V14L3,18L7,22V19H19V13H17M7,7H17V10L21,6L17,2V5H5V11H7V7Z" />
+
 </ResourceDictionary>

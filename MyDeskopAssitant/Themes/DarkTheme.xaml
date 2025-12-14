@@ -19,7 +19,12 @@
     <SolidColorBrush x:Key="SecundaryIconColor" Color="#8A94A6"/>
     <SolidColorBrush x:Key="TertiarIconyColor" Color="#4B5D78"/>
     <SolidColorBrush x:Key="FourthIconColor" Color="#323B4B"/>
-
     <SolidColorBrush x:Key="btnClose" Color="#F72626"/>
+
+    <!-- Music Colors -->
+    <SolidColorBrush x:Key="AccentColor" Color="AliceBlue"/>
+    <SolidColorBrush x:Key="AccentColorDark" Color="Brown"/>
+    <SolidColorBrush x:Key="WhiteColor" Color="White"/>
+
 
 </ResourceDictionary>

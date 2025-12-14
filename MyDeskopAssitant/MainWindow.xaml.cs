@@ -19,7 +19,8 @@ namespace MyDeskopAssitant
         public MainWindow()
         {
             InitializeComponent();
-            fContainer.Navigate(new System.Uri("Views/Home.xaml", UriKind.RelativeOrAbsolute));
+            this.DataContext = new ViewModels.MainViewModel();
+
         }
 
         private void btnClose_Click(object sender, RoutedEventArgs e)
@@ -30,6 +31,14 @@ namespace MyDeskopAssitant
         private void btnMinimize_Click(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState.Minimized;
+        }
+
+        private void DragRow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                this.DragMove();
+            }
         }
     }
 }

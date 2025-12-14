@@ -10,7 +10,7 @@
         WindowStartupLocation="CenterScreen" WindowStyle="None"
         Background="Transparent" AllowsTransparency="True"
         ResizeMode="NoResize">
-    <Border Background="{DynamicResource PrimaryBackgroundColor}">
+    <Border Background="{DynamicResource PrimaryBackgroundColor}" x:Name="DragRow" MouseLeftButtonDown="DragRow_MouseLeftButtonDown">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -44,10 +44,10 @@
                         <Button x:Name="BtnHome"  Background="Transparent" BorderThickness="0" Style="{DynamicResource PopupButtonStyle}" VerticalAlignment="Center">
                             <UserControl:MenuItem GroupName="MenuItem" Text="Home" Icon="{StaticResource home}" IconWidth="16" /> 
                         </Button>
-                        <Button x:Name="BtnMusic"  Background="Transparent" BorderThickness="0"  Style="{DynamicResource PopupButtonStyle}" VerticalAlignment="Center">
-                            <UserControl:MenuItem GroupName="MenuItem" Text="Music" Icon="{StaticResource music}" IconWidth="16" /> 
+                        <Button x:Name="BtnMusic"  Background="Transparent" BorderThickness="0"  Style="{DynamicResource PopupButtonStyle}" VerticalAlignment="Center" Command="{Binding NavigateCommand}">
+                            <UserControl:MenuItem GroupName="MenuItem" Text="Music" Icon="{StaticResource music}" IconWidth="16"  /> 
                         </Button>
-                        <Button x:Name="BtnVideo"  Background="Transparent" BorderThickness="0"  Style="{DynamicResource PopupButtonStyle}" VerticalAlignment="Center">
+                        <Button x:Name="BtnVideo"  Background="Transparent" BorderThickness="0"  Style="{DynamicResource PopupButtonStyle}" VerticalAlignment="Center" >
                             <UserControl:MenuItem GroupName="MenuItem" Text="Video" Icon="{StaticResource video}" IconWidth="16" /> 
                         </Button>
                         <Button x:Name="BtnCalender" Background="Transparent" BorderThickness="0"  Style="{DynamicResource PopupButtonStyle}" VerticalAlignment="Center">
@@ -63,8 +63,8 @@
                     </Popup>
                 </Grid>
             </Border>
-            
-            <Grid Grid.Column="1" x:Name="DragRow">
+
+            <Grid Grid.Column="1" >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="60"/>
                     <RowDefinition Height="*"/>
@@ -97,11 +97,10 @@
                 </StackPanel>
 
 
-                <Frame Grid.Row="1"
-                       Name="fContainer"
-                       Margin="20"
-                       NavigationUIVisibility="Hidden">
-                </Frame>
+                <ContentControl Grid.Row="1"
+                Margin="20"
+                Content="{Binding CurrentView}">
+                </ContentControl>
             </Grid>
         </Grid>
     </Border>

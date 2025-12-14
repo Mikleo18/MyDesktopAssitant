@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using MyDeskopAssitant.ViewModels;
+using System.Configuration;
 using System.Data;
 using System.Windows;
 
@@ -9,6 +10,7 @@ namespace MyDeskopAssitant
     /// </summary>
     public partial class App : Application
     {
+        public static MusicViewModel MusicVM { get; } = new MusicViewModel();
     }
 
 }
