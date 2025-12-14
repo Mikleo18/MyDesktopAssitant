@@ -4,9 +4,105 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MyDeskopAssitant"
+        xmlns:UserControl="clr-namespace:MyDeskopAssitant.Controls"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="MainWindow" Height="650" Width="1000"
+        WindowStartupLocation="CenterScreen" WindowStyle="None"
+        Background="Transparent" AllowsTransparency="True"
+        ResizeMode="NoResize">
+    <Border Background="{DynamicResource PrimaryBackgroundColor}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-    </Grid>
+            <Border Grid.Column="0" Background="{DynamicResource SecundaryBackgroundColor}" CornerRadius="8 0 8 0">
+                <Grid x:Name="GridNav" Width="60">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Logo -->
+                    <Grid Grid.Row="0">
+                        <Border Margin="14 24 0 0" Width="32" Height="24" HorizontalAlignment="Left">
+                            <Image Source="/Resources/logo.png" Stretch="Uniform"/>
+                        </Border>
+
+                        <Label Content="Rika"
+                               Foreground="{DynamicResource PrimaryTextColor}"
+                               FontWeight="Bold"
+                               FontSize="16"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Left"
+                               Margin="60 0 0 0"/>
+                    </Grid>
+
+                    <!-- Navigation Buttons -->
+                    <StackPanel Grid.Row="1" Margin="-1 40 0 20">
+                        <Button x:Name="BtnHome"  Background="Transparent" BorderThickness="0" Style="{DynamicResource PopupButtonStyle}" VerticalAlignment="Center">
+                            <UserControl:MenuItem GroupName="MenuItem" Text="Home" Icon="{StaticResource home}" IconWidth="16" /> 
+                        </Button>
+                        <Button x:Name="BtnMusic"  Background="Transparent" BorderThickness="0"  Style="{DynamicResource PopupButtonStyle}" VerticalAlignment="Center">
+                            <UserControl:MenuItem GroupName="MenuItem" Text="Music" Icon="{StaticResource music}" IconWidth="16" /> 
+                        </Button>
+                        <Button x:Name="BtnVideo"  Background="Transparent" BorderThickness="0"  Style="{DynamicResource PopupButtonStyle}" VerticalAlignment="Center">
+                            <UserControl:MenuItem GroupName="MenuItem" Text="Video" Icon="{StaticResource video}" IconWidth="16" /> 
+                        </Button>
+                        <Button x:Name="BtnCalender" Background="Transparent" BorderThickness="0"  Style="{DynamicResource PopupButtonStyle}" VerticalAlignment="Center">
+                            <UserControl:MenuItem GroupName="MenuItem" Text="Calender" Icon="{StaticResource calendar}" IconWidth="16" />
+                        </Button>
+                        <Button x:Name="BtnToDoList" Background="Transparent" BorderThickness="0"  Style="{DynamicResource PopupButtonStyle}" VerticalAlignment="Center">
+                            <UserControl:MenuItem GroupName="MenuItem" Text="Calender" Icon="{StaticResource todolist}" IconWidth="16" />
+                        </Button>
+                    </StackPanel>
+
+                    <Popup x:Name="Popup"  AllowsTransparency="True"  HorizontalOffset="0" VerticalOffset="10">
+
+                    </Popup>
+                </Grid>
+            </Border>
+            
+            <Grid Grid.Column="1" x:Name="DragRow">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="60"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <ToggleButton x:Name="Tg_Btn"  Content="xd" Foreground="White" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Background="Transparent" Margin="10,15,0,15" Style="{DynamicResource iToggleButtonStyle}">
+                    <ToggleButton.Triggers>
+                        <EventTrigger RoutedEvent="ToggleButton.Unchecked">
+                            <BeginStoryboard>
+                                <Storyboard x:Name="HideStackPanel">
+                                    <DoubleAnimation Storyboard.TargetName="GridNav" Storyboard.TargetProperty="Width" BeginTime="0:0:0" From="210" To="60" Duration="0:0:0.5">
+                                    </DoubleAnimation>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="ToggleButton.Checked">
+                            <BeginStoryboard>
+                                <Storyboard x:Name="ShowStackPanel">
+                                    <DoubleAnimation Storyboard.TargetName="GridNav" Storyboard.TargetProperty="Width" BeginTime="0:0:0" From="60" To="210" Duration="0:0:0.5">
+                                    </DoubleAnimation>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </ToggleButton.Triggers>
+                </ToggleButton>
+
+                <StackPanel Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,10,0" Height="30" Orientation="Horizontal" FlowDirection="RightToLeft" Grid.RowSpan="2">
+                    <Button x:Name="btnClose" Click="btnClose_Click" Style="{StaticResource IconButtonsStyle}" Content="{DynamicResource close}" />
+                    <Button x:Name="btnMinimize" Click="btnMinimize_Click" Style="{DynamicResource IconButtonsStyle}" Content="{DynamicResource minimize}"/>
+                </StackPanel>
+
+
+                <Frame Grid.Row="1"
+                       Name="fContainer"
+                       Margin="20"
+                       NavigationUIVisibility="Hidden">
+                </Frame>
+            </Grid>
+        </Grid>
+    </Border>
 </Window>
