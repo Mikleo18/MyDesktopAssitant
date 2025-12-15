@@ -13,6 +13,8 @@ namespace MyDeskopAssitant.ViewModels
     {
         private object _currentViewModel;
         private MusicViewModel MusicVm { get; set; }
+        private VideoViewModel VideoVm { get; set; }
+        private CalenderViewModel CalenderVm { get; set; }
 
         public object CurrentView
         {
@@ -25,28 +27,32 @@ namespace MyDeskopAssitant.ViewModels
         public MainViewModel()
         {
             MusicVm = App.MusicVM;
+            VideoVm = new VideoViewModel();
+            CalenderVm = new CalenderViewModel();
             NavigateCommand = new RelayCommand(ExecuteNavigate);
-            CurrentView = MusicVm; // Başlangıçta Music ViewModel'i yüklüyoruz
+            CurrentView = VideoVm; 
 
         }
 
         private void ExecuteNavigate(object parameter)
         {
-            string viewName = parameter as string;
+            string page = parameter?.ToString();
 
-            // Komut parametresine göre hangi ViewModel'in aktif olacağına karar veriyoruz
-            switch (viewName)
+            switch (page)
             {
                 case "Home":
-                    // CurrentView = new HomeViewModel(); // Eğer varsa
+                    //CurrentView = new HomeViewModel(); // Veya tanımlıysa HomeVm
                     break;
                 case "Music":
-                    CurrentView = MusicVm; // Music ViewModel'i yüklüyoruz
+                    CurrentView = MusicVm; // Zaten tanımlıydı
                     break;
                 case "Video":
-                    // CurrentView = new VideoViewModel();
+                    CurrentView = VideoVm; // Yeni tanımladığımız
                     break;
-                    // ... Diğer sayfalar ...
+                case "Calendar":
+                     CurrentView = CalenderVm;
+                    break;
+                    // ... diğerleri
             }
         }
 

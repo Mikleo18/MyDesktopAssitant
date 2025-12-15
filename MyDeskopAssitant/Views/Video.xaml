@@ -1,14 +1,116 @@
-﻿<Page x:Class="MyDeskopAssitant.Views.Video"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:MyDeskopAssitant.Views"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="Video">
+﻿<UserControl x:Class="MyDeskopAssitant.Views.Video"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MyDeskopAssitant.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="500" d:DesignWidth="800"
+             KeyDown="UserControl_KeyDown"
+             Focusable="True">
 
-    <Grid>
-        
+    <Grid Background="{DynamicResource PrimaryBackgroundColor}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" BorderBrush="#333333" BorderThickness="0,0,0,1" Margin="20,10">
+            <TextBlock Text="{Binding VideoTitle}" 
+                       Foreground="{DynamicResource PrimaryTextColor}" 
+                       FontSize="18" 
+                       FontWeight="SemiBold" 
+                       Padding="0,0,0,10"/>
+        </Border>
+
+        <Border Grid.Row="1" Margin="20" Background="Black" CornerRadius="5">
+            <MediaElement x:Name="player" 
+                          Source="{Binding VideoSource}" 
+                          LoadedBehavior="Manual" 
+                          UnloadedBehavior="Stop"
+                          Stretch="Uniform"
+                          MediaOpened="player_MediaOpened" 
+                          MediaEnded="player_MediaEnded"/>
+        </Border>
+
+        <Grid Grid.Row="2" Margin="20,0,20,20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Slider x:Name="progressSlider" 
+                        Maximum="{Binding SliderMaximum}" 
+                        Value="{Binding CurrentPosition}" 
+                        Style="{StaticResource Horizontal_Slider}"
+                        PreviewMouseLeftButtonUp="progressSlider_PreviewMouseLeftButtonUp"
+                        VerticalAlignment="Center"/>
+
+                <Label Content="{Binding CurrentTimeDisplay}" 
+                       Foreground="{DynamicResource PrimaryTextColor}" 
+                       Grid.Column="1" 
+                       Margin="10,0,0,0"/>
+            </Grid>
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+
+                <Button Command="{Binding OpenVideoCommand}" 
+                        Width="40" Height="40" Margin="5" Style="{StaticResource MusicControlButton}">
+                    <Path Data="{StaticResource icon_folder}" Fill="{DynamicResource PrimaryTextColor}" Stretch="Uniform" Height="16" Width="16"/>
+                </Button>
+
+                <Button Command="{Binding StopCommand}" 
+                        Width="40" Height="40" Margin="5" Style="{StaticResource MusicControlButton}">
+                    <Path Data="{StaticResource icon_stop}" Fill="{DynamicResource PrimaryTextColor}" Stretch="Uniform" Height="14" Width="14"/>
+                </Button>
+
+                <Button Command="{Binding PlayPauseCommand}" 
+                        Width="50" Height="50" Margin="15,0" Style="{StaticResource MusicControlButton}">
+                    <Path Fill="{DynamicResource PrimaryTextColor}" Stretch="Uniform" Height="20" Width="20" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Path.Style>
+                            <Style TargetType="Path">
+                                <Setter Property="Data" Value="{StaticResource icon_play}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPlaying}" Value="True">
+                                        <Setter Property="Data" Value="{StaticResource icon_pause}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Path.Style>
+                    </Path>
+                </Button>
+
+                <Button Command="{Binding PropertiesCommand}" 
+                        Width="40" Height="40" Margin="5" Style="{StaticResource MusicControlButton}">
+                    <Path Data="{StaticResource icon_info}" Fill="{DynamicResource PrimaryTextColor}" Stretch="Uniform" Height="16" Width="16"/>
+                </Button>
+
+                <Button Command="{Binding FullscreenCommand}" 
+        Width="40" Height="40" Margin="5" 
+        Style="{StaticResource MusicControlButton}">
+                    <Path Fill="{DynamicResource PrimaryTextColor}" Stretch="Uniform" Height="16" Width="16">
+                        <Path.Style>
+                            <Style TargetType="Path">
+                                <Setter Property="Data" Value="{StaticResource icon_fullscreen}" />
+
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsFullScreen}" Value="True">
+                                        <Setter Property="Data" Value="M14,14H19V16H16V19H14V14M5,14H10V19H8V16H5V14M8,5H10V10H5V8H8V5M19,8V10H14V5H16V8H19Z" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Path.Style>
+                    </Path>
+                </Button>
+
+            </StackPanel>
+        </Grid>
     </Grid>
-</Page>
+</UserControl>

@@ -15,10 +15,8 @@ using System.Windows.Shapes;
 
 namespace MyDeskopAssitant.Views
 {
-    /// <summary>
-    /// Interaction logic for Calender.xaml
-    /// </summary>
-    public partial class Calender : Page
+
+    public partial class Calender : UserControl
     {
         public Calender()
         {

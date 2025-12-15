@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using System.Text.Json.Serialization;
 
 namespace MyDeskopAssitant.Models
 {
@@ -15,6 +16,8 @@ namespace MyDeskopAssitant.Models
         public string FilePath { get; set; }
         public string Duration { get; set; }
         public TimeSpan TimeSpanDuration { get; set; }
+
+        [JsonIgnore]
         public ImageSource AlbumArt { get; set; }
     }
 }

@@ -17,6 +17,14 @@
                 <views:Music/>
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type vm:VideoViewModel}">
+                <views:Video/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type vm:CalenderViewModel}">
+                <views:Calender/>
+            </DataTemplate>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

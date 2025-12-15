@@ -7,6 +7,8 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -27,6 +29,7 @@ namespace MyDeskopAssitant.ViewModels
         private ObservableCollection<SongModel> _playlist;
         public event Action<double> RequestSeek;
         private bool _isLooping;
+        private readonly string _savePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "playlist_data.json");
 
         public MusicViewModel()
         {
@@ -44,10 +47,12 @@ namespace MyDeskopAssitant.ViewModels
 
 
             _playlist = new ObservableCollection<SongModel>();
-
+            LoadPlaylist();
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromSeconds(1);
             _timer.Tick += Timer_Tick;
+
+            
 
         }
 
@@ -230,6 +235,8 @@ namespace MyDeskopAssitant.ViewModels
                     // Otomatik başlatmak istersen: IsPlaying = true;
                     // Ama önce SliderMaximum'u ayarlamak için MediaElement'in yüklenmesini beklemek daha sağlıklıdır.
                 }
+
+                SavePlaylist();
             }
         }
 
@@ -335,25 +342,43 @@ namespace MyDeskopAssitant.ViewModels
             // Listede karıştırılacak kadar şarkı yoksa çık
             if (Playlist.Count < 2) return;
 
-            // 1. Şu an çalan şarkıyı sakla (Kaybetmeyelim)
             var current = CurrentSong;
 
-            // 2. Listeyi rastgele karıştır (Geçici bir liste oluştur)
-            var shuffledList = Playlist.OrderBy(x => Guid.NewGuid()).ToList();
+            // YENİ LİSTE OLUŞTURMA MANTIĞI:
+            List<SongModel> newOrderList;
 
-            // 3. YENİ KISIM: ID'leri sırayla yeniden dağıt
-            for (int i = 0; i < shuffledList.Count; i++)
+            if (current != null)
             {
-                // Listede 0. sıradaki şarkıya ID 1, 1. sıradakine ID 2 ver...
-                shuffledList[i].Id = i + 1;
+                // 1. Çalan şarkı HARİÇ diğerlerini al ve karıştır
+                var otherSongs = Playlist.Where(s => s != current)
+                                         .OrderBy(x => Guid.NewGuid())
+                                         .ToList();
+
+                // 2. Yeni listeyi oluştur: [Çalan Şarkı] + [Karışık Diğerleri]
+                newOrderList = new List<SongModel>();
+                newOrderList.Add(current); // En başa ekle
+                newOrderList.AddRange(otherSongs); // Devamına diğerlerini ekle
+            }
+            else
+            {
+                // Eğer hiçbir şey çalmıyorsa hepsini rastgele karıştır
+                newOrderList = Playlist.OrderBy(x => Guid.NewGuid()).ToList();
             }
 
-            // 4. Ana listeyi güncelle (UI bunu algılar ve listeyi yeniler)
-            Playlist = new ObservableCollection<SongModel>(shuffledList);
+            // 3. ID NUMARALARINI DÜZELT (1, 2, 3...)
+            for (int i = 0; i < newOrderList.Count; i++)
+            {
+                newOrderList[i].Id = i + 1;
+            }
 
-            // 5. Çalan şarkı referansını geri yükle (Kesinti olmasın)
-            // Not: ID'si değişmiş olabilir ama nesne referansı aynı olduğu için sorun olmaz.
+            // 4. Listeyi Güncelle
+            Playlist = new ObservableCollection<SongModel>(newOrderList);
+
+            // 5. Çalan şarkıyı tekrar seçili hale getir (Zaten 1. sırada)
             CurrentSong = current;
+
+            // Değişikliği kaydet (JSON sistemin varsa)
+            SavePlaylist();
         }
 
         // 2. LOOP (DÖNGÜ) MANTIĞI
@@ -404,6 +429,74 @@ namespace MyDeskopAssitant.ViewModels
                 }
 
                 Playlist.Remove(songToDelete);
+            }
+
+            SavePlaylist();
+        }
+
+        public void SavePlaylist()
+        {
+            try
+            {
+                // Listeyi JSON formatına çevir (WriteIndented=true okunabilir yapar)
+                string jsonString = JsonSerializer.Serialize(Playlist, new JsonSerializerOptions { WriteIndented = true });
+
+                // Dosyayı diske yaz
+                System.IO.File.WriteAllText(_savePath, jsonString);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Kaydetme Hatası: {ex.Message}");
+            }
+        }
+
+        // 2. YÜKLEME METODU
+        public void LoadPlaylist()
+        {
+            // Eğer kayıt dosyası yoksa işlem yapma
+            if (!System.IO.File.Exists(_savePath)) return;
+
+            try
+            {
+                // Dosyayı oku
+                string jsonString = System.IO.File.ReadAllText(_savePath);
+
+                // JSON'u geçici bir listeye çevir
+                var savedSongs = JsonSerializer.Deserialize<ObservableCollection<SongModel>>(jsonString);
+
+                if (savedSongs != null)
+                {
+                    Playlist.Clear();
+
+                    foreach (var song in savedSongs)
+                    {
+                        // ÖNEMLİ: Dosya hala bilgisayarda duruyor mu? (Silinmiş olabilir)
+                        if (System.IO.File.Exists(song.FilePath))
+                        {
+                            // Dosya varsa TagLib ile tekrar oku (Kapak resmini yüklemek için)
+                            try
+                            {
+                                var tfile = TagLib.File.Create(song.FilePath);
+
+                                // Resim yükleme metodunu kullanarak resmi tekrar oluştur
+                                song.AlbumArt = GetAlbumArt(tfile);
+
+                                // Listeye ekle
+                                Playlist.Add(song);
+                            }
+                            catch
+                            {
+                                // Taglib okuyamazsa varsayılan resimle ekle
+                                song.AlbumArt = LoadDefaultImage();
+                                Playlist.Add(song);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Yükleme Hatası: {ex.Message}");
             }
         }
 

@@ -41,21 +41,37 @@
 
                     <!-- Navigation Buttons -->
                     <StackPanel Grid.Row="1" Margin="-1 40 0 20">
-                        <Button x:Name="BtnHome"  Background="Transparent" BorderThickness="0" Style="{DynamicResource PopupButtonStyle}" VerticalAlignment="Center">
-                            <UserControl:MenuItem GroupName="MenuItem" Text="Home" Icon="{StaticResource home}" IconWidth="16" /> 
-                        </Button>
-                        <Button x:Name="BtnMusic"  Background="Transparent" BorderThickness="0"  Style="{DynamicResource PopupButtonStyle}" VerticalAlignment="Center" Command="{Binding NavigateCommand}">
-                            <UserControl:MenuItem GroupName="MenuItem" Text="Music" Icon="{StaticResource music}" IconWidth="16"  /> 
-                        </Button>
-                        <Button x:Name="BtnVideo"  Background="Transparent" BorderThickness="0"  Style="{DynamicResource PopupButtonStyle}" VerticalAlignment="Center" >
-                            <UserControl:MenuItem GroupName="MenuItem" Text="Video" Icon="{StaticResource video}" IconWidth="16" /> 
-                        </Button>
-                        <Button x:Name="BtnCalender" Background="Transparent" BorderThickness="0"  Style="{DynamicResource PopupButtonStyle}" VerticalAlignment="Center">
-                            <UserControl:MenuItem GroupName="MenuItem" Text="Calender" Icon="{StaticResource calendar}" IconWidth="16" />
-                        </Button>
-                        <Button x:Name="BtnToDoList" Background="Transparent" BorderThickness="0"  Style="{DynamicResource PopupButtonStyle}" VerticalAlignment="Center">
-                            <UserControl:MenuItem GroupName="MenuItem" Text="Calender" Icon="{StaticResource todolist}" IconWidth="16" />
-                        </Button>
+
+                        <UserControl:MenuItem GroupName="MenuItem" 
+                    Text="Home" 
+                    Icon="{StaticResource home}" 
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="Home" />
+
+                        <UserControl:MenuItem GroupName="MenuItem" 
+                    Text="Music" 
+                    Icon="{StaticResource music}" 
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="Music" />
+
+                        <UserControl:MenuItem GroupName="MenuItem" 
+                    Text="Video" 
+                    Icon="{StaticResource video}" 
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="Video" />
+
+                        <UserControl:MenuItem GroupName="MenuItem" 
+                    Text="Calendar" 
+                    Icon="{StaticResource calendar}" 
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="Calendar" />
+
+                        <UserControl:MenuItem GroupName="MenuItem" 
+                    Text="To-Do List" 
+                    Icon="{StaticResource todolist}" 
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="ToDo" />
+
                     </StackPanel>
 
                     <Popup x:Name="Popup"  AllowsTransparency="True"  HorizontalOffset="0" VerticalOffset="10">
@@ -64,7 +80,7 @@
                 </Grid>
             </Border>
 
-            <Grid Grid.Column="1" >
+            <Grid Grid.Column="1" x:Name="Drag">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="60"/>
                     <RowDefinition Height="*"/>

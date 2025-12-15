@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using MyDeskopAssitant.ViewModels;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -19,7 +20,7 @@ namespace MyDeskopAssitant
         public MainWindow()
         {
             InitializeComponent();
-            this.DataContext = new ViewModels.MainViewModel();
+            this.DataContext = new MainViewModel();
 
         }
 
