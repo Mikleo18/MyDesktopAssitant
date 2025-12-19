@@ -1,11 +1,66 @@
 ﻿<UserControl x:Class="MyDeskopAssitant.Views.Calender"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:MyDeskopAssitant.Views"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800">
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MyDeskopAssitant.Views"
+             xmlns:converters="clr-namespace:MyDeskopAssitant.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="500" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <converters:DateHasEventConverter x:Key="DateHasEventConverter"/>
+
+        <Style x:Key="CustomCalendarDayButtonStyle" TargetType="CalendarDayButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CalendarDayButton">
+                        <Grid>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal"/>
+                                    <VisualState x:Name="MouseOver">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="HighlightCircle" Storyboard.TargetProperty="Opacity" To="0.5" Duration="0"/>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                                <VisualStateGroup x:Name="SelectionStates">
+                                    <VisualState x:Name="Unselected"/>
+                                    <VisualState x:Name="Selected">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="HighlightCircle" Storyboard.TargetProperty="Opacity" To="1" Duration="0"/>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+
+                            <Ellipse x:Name="HighlightCircle" Fill="{DynamicResource PrimaryBlueColor}" Opacity="0" Width="30" Height="30"/>
+
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <ContentPresenter x:Name="NormalText" 
+                                                  TextElement.Foreground="{DynamicResource PrimaryTextColor}" 
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                                <Ellipse Width="4" Height="4" Margin="0,2,0,0" Fill="#FF5555">
+                                    <Ellipse.Visibility>
+                                        <MultiBinding Converter="{StaticResource DateHasEventConverter}">
+                                            <Binding />
+                                            <Binding Path="DataContext.AllEvents" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                        </MultiBinding>
+                                    </Ellipse.Visibility>
+                                </Ellipse>
+                            </StackPanel>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
 
     <Grid Background="{DynamicResource PrimaryBackgroundColor}">
         <Grid.ColumnDefinitions>
@@ -14,10 +69,11 @@
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="0" Margin="20" Background="{DynamicResource SecundaryBackgroundColor}" CornerRadius="10" Padding="10">
-            <Viewbox Stretch="Uniform">
+            <Viewbox Stretch="Uniform" VerticalAlignment="Top">
                 <Calendar SelectedDate="{Binding SelectedDate}" 
+                          CalendarDayButtonStyle="{StaticResource CustomCalendarDayButtonStyle}"
                           SelectionMode="SingleDate"
-                          Background="Transparent"
+                          Background="{DynamicResource PrimaryBackgroundColor}"
                           BorderThickness="0"/>
             </Viewbox>
         </Border>
@@ -33,18 +89,22 @@
                        Foreground="{DynamicResource PrimaryTextColor}" 
                        FontSize="24" FontWeight="Bold" Margin="0,0,0,10"/>
 
-            <ListView Grid.Row="1" ItemsSource="{Binding DisplayEvents}" 
-                      Background="Transparent" BorderThickness="0">
+            <ListView Grid.Row="1" ItemsSource="{Binding DisplayEvents}" Background="Transparent" BorderThickness="0">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Border Background="{DynamicResource SecundaryBackgroundColor}" CornerRadius="5" Margin="0,5" Padding="10">
                             <Grid>
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Text="{Binding Title}" FontSize="16" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Date, StringFormat='HH:mm'}" 
+                               Foreground="{DynamicResource PrimaryBlueColor}" 
+                               FontWeight="Bold" Margin="0,0,10,0" VerticalAlignment="Center"/>
+
+                                <TextBlock Grid.Column="1" Text="{Binding Title}" FontSize="16" VerticalAlignment="Center">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}"/>
@@ -57,6 +117,36 @@
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
+
+                                <Button Grid.Column="2"
+                            Width="30" Height="30"
+                            Style="{StaticResource MusicControlButton}"
+                            Background="Transparent"
+                            
+                            Command="{Binding DataContext.DeleteEventCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding}">
+
+                                    <Path Fill="#FF5555" Stretch="Uniform" Width="12" Height="12"
+                              Data="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" />
+
+                                    <Button.Triggers>
+                                        <EventTrigger RoutedEvent="MouseEnter">
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0.7" Duration="0:0:0.1"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                        <EventTrigger RoutedEvent="MouseLeave">
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.1"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Button.Triggers>
+                                </Button>
+
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -65,18 +155,29 @@
 
             <Grid Grid.Row="2" Margin="0,10,0,0">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBox Text="{Binding EventInput, UpdateSourceTrigger=PropertyChanged}" 
-                         Height="40" VerticalContentAlignment="Center" Padding="5"
+                <ComboBox ItemsSource="{Binding Hours}" SelectedItem="{Binding SelectedHour}" 
+                          Width="60" Height="40" VerticalContentAlignment="Center" Margin="0,0,5,0" FontSize="14"/>
+
+                <TextBlock Grid.Column="1" Text=":" VerticalAlignment="Center" Foreground="Gray" Margin="0,0,5,0" FontWeight="Bold"/>
+
+                <ComboBox Grid.Column="2" ItemsSource="{Binding Minutes}" SelectedItem="{Binding SelectedMinute}" 
+                          Width="60" Height="40" VerticalContentAlignment="Center" Margin="0,0,10,0" FontSize="14"/>
+
+                <TextBox Grid.Column="3" Text="{Binding EventInput, UpdateSourceTrigger=PropertyChanged}" 
+                         Height="40" VerticalContentAlignment="Center" Padding="5" 
                          FontSize="14" Margin="0,0,10,0"/>
 
-                <Button Grid.Column="1" Command="{Binding AddEventCommand}" 
+                <Button Grid.Column="4" Command="{Binding AddEventCommand}" 
                         Content="Ekle" Width="80" Height="40"
                         Style="{StaticResource MusicControlButton}" Background="#444"/>
             </Grid>
         </Grid>
     </Grid>
-</UserControl> 
+</UserControl>

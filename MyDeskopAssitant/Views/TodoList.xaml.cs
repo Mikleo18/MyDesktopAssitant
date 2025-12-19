@@ -15,10 +15,8 @@ using System.Windows.Shapes;
 
 namespace MyDeskopAssitant.Views
 {
-    /// <summary>
-    /// Interaction logic for TodoList.xaml
-    /// </summary>
-    public partial class TodoList : Page
+
+    public partial class TodoList : UserControl
     {
         public TodoList()
         {

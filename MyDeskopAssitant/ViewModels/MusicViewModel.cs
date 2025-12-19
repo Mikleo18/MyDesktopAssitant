@@ -64,7 +64,6 @@ namespace MyDeskopAssitant.ViewModels
 
             if (CurrentPosition >= SliderMaximum && SliderMaximum > 0)
             {
-                // Şarkı bittiğinde
                 _timer.Stop();
                 ExecuteNextSong(null);
             }
@@ -104,6 +103,7 @@ namespace MyDeskopAssitant.ViewModels
                 }
             }
         }
+
 
         public string SongTitle => CurrentSong?.Name ?? "Choose a song"; 
         public string ComposerName => CurrentSong?.Composer ?? "";
@@ -291,7 +291,6 @@ namespace MyDeskopAssitant.ViewModels
             }
         }
 
-    
 
         private void ExecuteSeek(object position)
         {
@@ -500,6 +499,18 @@ namespace MyDeskopAssitant.ViewModels
             }
         }
 
+        public void SetDuration(TimeSpan duration)
+        {
+            SliderMaximum = duration.TotalSeconds;
+
+        }
+
+    
+        public void OnSongEnded()
+        {
+            
+            ExecuteSongEnded(null);
+        }
 
     }
 

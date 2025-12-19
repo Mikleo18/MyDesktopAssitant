@@ -12,9 +12,12 @@ namespace MyDeskopAssitant.ViewModels
     public class MainViewModel:BaseViewModel
     {
         private object _currentViewModel;
-        private MusicViewModel MusicVm { get; set; }
-        private VideoViewModel VideoVm { get; set; }
-        private CalenderViewModel CalenderVm { get; set; }
+        public MusicViewModel MusicVm { get; set; }
+        public VideoViewModel VideoVm { get; set; }
+        public CalenderViewModel CalenderVm { get; set; }
+        public ToDoViewModel ToDoListVm { get; set; }
+        public HomeViewModel HomeVm { get; set; }
+        public SettingsViewModel SettingsVm { get; set; }
 
         public object CurrentView
         {
@@ -26,11 +29,18 @@ namespace MyDeskopAssitant.ViewModels
 
         public MainViewModel()
         {
+
+
             MusicVm = App.MusicVM;
             VideoVm = new VideoViewModel();
             CalenderVm = new CalenderViewModel();
+            ToDoListVm = new ToDoViewModel();
+            HomeVm = new HomeViewModel();
+            SettingsVm = new SettingsViewModel();
             NavigateCommand = new RelayCommand(ExecuteNavigate);
-            CurrentView = VideoVm; 
+
+
+            CurrentView = HomeVm; 
 
         }
 
@@ -41,18 +51,23 @@ namespace MyDeskopAssitant.ViewModels
             switch (page)
             {
                 case "Home":
-                    //CurrentView = new HomeViewModel(); // Veya tanımlıysa HomeVm
+                    CurrentView = HomeVm;
                     break;
                 case "Music":
-                    CurrentView = MusicVm; // Zaten tanımlıydı
+                    CurrentView = MusicVm; 
                     break;
                 case "Video":
-                    CurrentView = VideoVm; // Yeni tanımladığımız
+                    CurrentView = VideoVm; 
                     break;
                 case "Calendar":
                      CurrentView = CalenderVm;
                     break;
-                    // ... diğerleri
+                case "ToDo":
+                    CurrentView = ToDoListVm;
+                    break;
+                case "Settings":
+                    CurrentView = SettingsVm;
+                    break;
             }
         }
 

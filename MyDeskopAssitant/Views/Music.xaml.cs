@@ -24,7 +24,6 @@ namespace MyDeskopAssitant.Views
         public Music()
         {
             InitializeComponent();
-            // ViewModel bağlandığında olayları dinlemeye başla
             this.DataContextChanged += Music_DataContextChanged;
         }
 
@@ -33,22 +32,14 @@ namespace MyDeskopAssitant.Views
             if (this.DataContext is MusicViewModel vm)
             {
                 _viewModel = vm;
+                // Play/Pause durumunu dinle
                 _viewModel.PropertyChanged += ViewModel_PropertyChanged;
-
-                
-                _viewModel.RequestSeek += (seconds) =>
-                {
-                    if (mediaElement.NaturalDuration.HasTimeSpan)
-                    {
-                        mediaElement.Position = TimeSpan.FromSeconds(seconds);
-                    }
-                };
             }
         }
 
-        // ViewModel'deki "IsPlaying" değişirse MediaElement'i kontrol et
-        private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
+            // ViewModel'de IsPlaying değişince burası çalışır
             if (e.PropertyName == nameof(MusicViewModel.IsPlaying))
             {
                 if (_viewModel.IsPlaying)
@@ -58,39 +49,36 @@ namespace MyDeskopAssitant.Views
             }
         }
 
-        // Şarkı dosyası başarıyla açıldığında çalışır
         private void mediaElement_MediaOpened(object sender, RoutedEventArgs e)
         {
             if (mediaElement.NaturalDuration.HasTimeSpan && _viewModel != null)
             {
-                // 1. Slider'ın bitiş noktasını ayarla (YOKSA SLIDER İLERLEMEZ!)
+                // Slider maksimum değerini ayarla
                 _viewModel.SliderMaximum = mediaElement.NaturalDuration.TimeSpan.TotalSeconds;
 
-                // 2. Otomatik çalmayı başlat
+                // Şarkı yüklenince otomatik çal
                 _viewModel.IsPlaying = true;
             }
         }
 
-        // Şarkı bittiğinde sonraki şarkıya geç
         private void mediaElement_MediaEnded(object sender, RoutedEventArgs e)
         {
-
-            if (!mediaElement.NaturalDuration.HasTimeSpan) return;
-
+            // Şarkı bitince sonrakine geç
             if (_viewModel != null && _viewModel.NextSongCommand.CanExecute(null))
             {
                 _viewModel.NextSongCommand.Execute(null);
             }
         }
 
-        private void slider_PreviewMouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        // Slider ile sarma işlemi
+        private void slider_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-
-            double newTime = slider.Value;
-
-            mediaElement.Position = TimeSpan.FromSeconds(newTime);
-
-             _viewModel.IsPlaying = true; 
+            if (sender is Slider slider)
+            {
+                mediaElement.Position = TimeSpan.FromSeconds(slider.Value);
+                // Sarma bitince çalmaya devam et
+                _viewModel.IsPlaying = true;
+            }
         }
     }
 }

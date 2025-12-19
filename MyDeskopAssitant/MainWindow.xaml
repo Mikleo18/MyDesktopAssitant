@@ -12,6 +12,7 @@
         ResizeMode="NoResize">
     <Border Background="{DynamicResource PrimaryBackgroundColor}" x:Name="DragRow" MouseLeftButtonDown="DragRow_MouseLeftButtonDown">
         <Grid>
+            
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
@@ -23,6 +24,8 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
+                    
+                    
 
                     <!-- Logo -->
                     <Grid Grid.Row="0">
@@ -36,7 +39,7 @@
                                FontSize="16"
                                VerticalAlignment="Center"
                                HorizontalAlignment="Left"
-                               Margin="60 0 0 0"/>
+                               Margin="60 30 0 0"/>
                     </Grid>
 
                     <!-- Navigation Buttons -->
@@ -72,6 +75,12 @@
                     Command="{Binding NavigateCommand}"
                     CommandParameter="ToDo" />
 
+                        <UserControl:MenuItem GroupName="MenuItem" 
+                    Text="Settings" 
+                    Icon="{StaticResource Settings}" 
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="Settings" />
+
                     </StackPanel>
 
                     <Popup x:Name="Popup"  AllowsTransparency="True"  HorizontalOffset="0" VerticalOffset="10">
@@ -86,7 +95,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <ToggleButton x:Name="Tg_Btn"  Content="xd" Foreground="White" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Background="Transparent" Margin="10,15,0,15" Style="{DynamicResource iToggleButtonStyle}">
+                <ToggleButton x:Name="Tg_Btn"  Content="xd" Foreground="White" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Background="Transparent" Margin="10,15,0,15" Style="{DynamicResource HamburgerThickToggleButtonStyle}">
                     <ToggleButton.Triggers>
                         <EventTrigger RoutedEvent="ToggleButton.Unchecked">
                             <BeginStoryboard>

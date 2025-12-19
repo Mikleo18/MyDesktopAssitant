@@ -25,6 +25,18 @@
                 <views:Calender/>
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type vm:ToDoViewModel}">
+                <views:TodoList/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type vm:HomeViewModel}">
+                <views:Home/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
+                <views:Settings/>
+            </DataTemplate>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>
