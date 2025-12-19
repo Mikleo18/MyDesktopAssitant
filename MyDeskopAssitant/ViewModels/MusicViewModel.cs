@@ -499,19 +499,6 @@ namespace MyDeskopAssitant.ViewModels
             }
         }
 
-        public void SetDuration(TimeSpan duration)
-        {
-            SliderMaximum = duration.TotalSeconds;
-
-        }
-
-    
-        public void OnSongEnded()
-        {
-            
-            ExecuteSongEnded(null);
-        }
-
     }
 
 }

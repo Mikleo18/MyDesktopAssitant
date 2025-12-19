@@ -34,6 +34,15 @@ namespace MyDeskopAssitant.Views
                 _viewModel = vm;
                 // Play/Pause durumunu dinle
                 _viewModel.PropertyChanged += ViewModel_PropertyChanged;
+
+                _viewModel.RequestSeek += (seconds) =>
+                {
+                    // MediaElement hazırsa pozisyonu güncelle
+                    if (mediaElement.NaturalDuration.HasTimeSpan)
+                    {
+                        mediaElement.Position = TimeSpan.FromSeconds(seconds);
+                    }
+                };
             }
         }
 
