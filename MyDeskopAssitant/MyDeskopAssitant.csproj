@@ -15,10 +15,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Resources\logo.ico" />
+    <Resource Include="Resources\logo.ico">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="HandyControl" Version="3.5.1" />
+    <PackageReference Include="HandyControl.Lang.tr" Version="3.5.1" />
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="TagLibSharp" Version="2.3.0" />
   </ItemGroup>

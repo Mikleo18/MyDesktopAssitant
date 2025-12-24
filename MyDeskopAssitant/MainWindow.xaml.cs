@@ -91,7 +91,6 @@ namespace MyDeskopAssitant
             return false;
         }
 
-        private void btnClose_Click(object sender, RoutedEventArgs e) => Application.Current.Shutdown();
 
         private void btnMinimize_Click(object sender, RoutedEventArgs e) => this.WindowState = WindowState.Minimized;
 
@@ -133,6 +132,36 @@ namespace MyDeskopAssitant
                 MusicWidget.ReleaseMouseCapture();
                 e.Handled = true; // Olayı burada bitir
             }
+        }
+
+        private void btnClose_Click(object sender, RoutedEventArgs e)
+        {
+            this.Hide(); // Pencereyi gizle
+            MyNotifyIcon.ShowBalloonTip("Rika", "Arka planda çalışmaya devam ediyorum.", Hardcodet.Wpf.TaskbarNotification.BalloonIcon.Info);
+        }
+
+        // 2. İKONA ÇİFT TIKLAYINCA AÇ
+        private void MyNotifyIcon_TrayMouseDoubleClick(object sender, RoutedEventArgs e)
+        {
+            this.Show(); // Pencereyi göster
+            this.WindowState = WindowState.Normal; // Minimize ise düzelt
+            this.Activate(); // Öne getir
+        }
+
+        // 3. SAĞ TIK -> UYGULAMAYI AÇ
+        private void ShowApp_Click(object sender, RoutedEventArgs e)
+        {
+            this.Show();
+            this.WindowState = WindowState.Normal;
+            this.Activate();
+        }
+
+        // 4. SAĞ TIK -> ÇIKIŞ (PROGRAMI TAMAMEN KAPATIR)
+        private void ExitApp_Click(object sender, RoutedEventArgs e)
+        {
+            // NotifyIcon'ı temizle ki arkada hayalet ikon kalmasın
+            MyNotifyIcon.Dispose();
+            Application.Current.Shutdown();
         }
     }
 }
