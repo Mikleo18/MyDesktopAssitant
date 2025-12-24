@@ -78,7 +78,7 @@ This method is recommended if you want to inspect the code or make changes.
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/Mikleo18/MyDeskopAssitant.git](https://github.com/Mikleo18/MyDeskopAssitant.git)
+   git clone https://github.com/Mikleo18/MyDesktopAssitant.git
    ```
 2. **Open the project:** Navigate to the project folder and open MyDeskopAssitant.sln with Visual Studio 2022.
 3. **Restore Packages:** Visual Studio should automatically restore NuGet packages (NAudio, MaterialDesign, etc.). If not, go to Tools > NuGet Package Manager > Package Manager Console and run:
