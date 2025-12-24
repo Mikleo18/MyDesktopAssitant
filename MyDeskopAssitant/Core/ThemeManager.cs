@@ -93,7 +93,7 @@ namespace MyDeskopAssitant.Core
             }
             catch
             {
-                // Hatalı hex kodu girilirse patlamasın
+                
             }
         } 
     }

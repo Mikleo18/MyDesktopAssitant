@@ -29,9 +29,6 @@ namespace MyDeskopAssitant.ViewModels
 
         public MainViewModel()
         {
-
-
-            //MusicVm = App.MusicVM;
             MusicVm = new MusicViewModel();
             VideoVm = new VideoViewModel();
             CalenderVm = new CalenderViewModel();
@@ -40,9 +37,7 @@ namespace MyDeskopAssitant.ViewModels
             SettingsVm = new SettingsViewModel();
             NavigateCommand = new RelayCommand(ExecuteNavigate);
 
-
             CurrentView = HomeVm; 
-
         }
 
         private void ExecuteNavigate(object parameter)

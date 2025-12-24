@@ -21,15 +21,15 @@ namespace MyDeskopAssitant.Models
     public class WeatherDescription
     {
         [JsonPropertyName("description")]
-        public string Description { get; set; } // Örn: "parçalı bulutlu"
+        public string Description { get; set; } 
 
         [JsonPropertyName("icon")]
-        public string Icon { get; set; } // Örn: "04d"
+        public string Icon { get; set; } 
     }
 
     public class MainData
     {
         [JsonPropertyName("temp")]
-        public double Temp { get; set; } // Örn: 15.5
+        public double Temp { get; set; } 
     }
 }

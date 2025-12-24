@@ -26,7 +26,7 @@ namespace MyDeskopAssitant.ViewModels
 
         private DispatcherTimer _timer;
 
-        // Dosya Yolları (Diğer sayfalarla aynı olmalı)
+        // Dosya Yolları 
         private readonly string _todoJsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "todo_data.json");
         private readonly string _calendarJsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "calendar_data.json");
 
@@ -68,7 +68,7 @@ namespace MyDeskopAssitant.ViewModels
         private void UpdateTimeData()
         {
             var now = DateTime.Now;
-            CurrentDate = now.ToString("dd MMMM yyyy, dddd"); // 18 Aralık 2025, Perşembe
+            CurrentDate = now.ToString("dd MMMM yyyy, dddd");
             CurrentTime = now.ToString("HH:mm");
 
             // Saate göre selamlama
@@ -255,11 +255,10 @@ namespace MyDeskopAssitant.ViewModels
             catch (HttpRequestException httpEx)
             {
                 // İnternet veya API Key hatası varsa buraya düşer
-                // Eğer yeni aldıysan muhtemelen 401 hatasıdır.
                 System.Diagnostics.Debug.WriteLine($"API Hatası: {httpEx.Message}");
 
                 WeatherTemp = "-";
-                WeatherDesc = "Bağlantı Hatası"; // Kullanıcıya daha anlamlı bilgi
+                WeatherDesc = "Bağlantı Hatası"; 
                 WeatherCity = "Hata";
             }
             catch (Exception ex)

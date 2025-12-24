@@ -56,7 +56,7 @@ namespace MyDeskopAssitant.ViewModels
 
         private void ExecuteToggleTheme(object obj)
         {
-            // Bu metot butonla tetiklenirse kullanılır (Opsiyonel)
+
         }
 
     }

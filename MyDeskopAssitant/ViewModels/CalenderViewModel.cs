@@ -15,8 +15,6 @@ namespace MyDeskopAssitant.ViewModels
         private ObservableCollection<CalendarEventModel> _displayEvents;
         private DateTime _selectedDate;
         private string _eventInput;
-
-        // Yeni Saat Değişkenimiz
         private DateTime _selectedEventTime = DateTime.Now;
 
         private readonly string _jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "calendar_data.json");
@@ -43,7 +41,6 @@ namespace MyDeskopAssitant.ViewModels
             set { _allEvents = value; OnPropertyChanged(); }
         }
 
-        // HandyControl TimePicker buraya bağlanacak
         public DateTime SelectedEventTime
         {
             get => _selectedEventTime;
@@ -80,15 +77,8 @@ namespace MyDeskopAssitant.ViewModels
         public ICommand AddEventCommand { get; }
         public ICommand DeleteEventCommand { get; }
 
-        // 👇👇👇 BURASI DEĞİŞTİ 👇👇👇
         private void ExecuteAddEvent(object obj)
         {
-            // Eski kod: int.Parse(SelectedHour)... (ARTIK YOK)
-
-            // Yeni Kod:
-            // SelectedDate'in sadece tarihini al (Örn: 24.12.2025 00:00)
-            // SelectedEventTime'ın sadece saatini al (Örn: 14:30)
-            // İkisini topla -> 24.12.2025 14:30
             DateTime finalDateTime = SelectedDate.Date + SelectedEventTime.TimeOfDay;
 
             var newEvent = new CalendarEventModel

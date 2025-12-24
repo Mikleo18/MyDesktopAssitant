@@ -25,7 +25,7 @@ namespace MyDeskopAssitant.ViewModels
         private DispatcherTimer _timer;
         private bool _isplaying;
         private SongModel _currentSong;
-        private double _currentPosition; // Saniye cinsinden
+        private double _currentPosition; 
         private double _sliderMaximum;
         private string _currentTimeDisplay = "00:00";
         private ObservableCollection<SongModel> _songs;
