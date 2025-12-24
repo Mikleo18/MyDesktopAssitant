@@ -32,61 +32,23 @@ namespace MyDeskopAssitant.Views
             if (this.DataContext is MusicViewModel vm)
             {
                 _viewModel = vm;
-                // Play/Pause durumunu dinle
-                _viewModel.PropertyChanged += ViewModel_PropertyChanged;
-
-                _viewModel.RequestSeek += (seconds) =>
-                {
-                    // MediaElement hazırsa pozisyonu güncelle
-                    if (mediaElement.NaturalDuration.HasTimeSpan)
-                    {
-                        mediaElement.Position = TimeSpan.FromSeconds(seconds);
-                    }
-                };
+                // BURADA ARTIK HİÇBİR OLAYI (EVENT) DİNLEMİYORUZ.
+                // ÇÜNKÜ O İŞİ ARTIK MAINWINDOW YAPIYOR.
             }
         }
 
-        private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            // ViewModel'de IsPlaying değişince burası çalışır
-            if (e.PropertyName == nameof(MusicViewModel.IsPlaying))
-            {
-                if (_viewModel.IsPlaying)
-                    mediaElement.Play();
-                else
-                    mediaElement.Pause();
-            }
-        }
-
-        private void mediaElement_MediaOpened(object sender, RoutedEventArgs e)
-        {
-            if (mediaElement.NaturalDuration.HasTimeSpan && _viewModel != null)
-            {
-                // Slider maksimum değerini ayarla
-                _viewModel.SliderMaximum = mediaElement.NaturalDuration.TimeSpan.TotalSeconds;
-
-                // Şarkı yüklenince otomatik çal
-                _viewModel.IsPlaying = true;
-            }
-        }
-
-        private void mediaElement_MediaEnded(object sender, RoutedEventArgs e)
-        {
-            // Şarkı bitince sonrakine geç
-            if (_viewModel != null && _viewModel.NextSongCommand.CanExecute(null))
-            {
-                _viewModel.NextSongCommand.Execute(null);
-            }
-        }
 
         // Slider ile sarma işlemi
         private void slider_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (sender is Slider slider)
+            if (sender is Slider slider && _viewModel != null)
             {
-                mediaElement.Position = TimeSpan.FromSeconds(slider.Value);
-                // Sarma bitince çalmaya devam et
-                _viewModel.IsPlaying = true;
+                // ViewModel'e "Beni bu saniyeye sar" emri veriyoruz.
+                // Bu emri MainWindow duyacak ve GlobalPlayer'ı saracak.
+                if (_viewModel.SeekCommand.CanExecute(slider.Value))
+                {
+                    _viewModel.SeekCommand.Execute(slider.Value);
+                }
             }
         }
     }

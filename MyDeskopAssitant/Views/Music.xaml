@@ -58,13 +58,13 @@
                 <Label x:Name="DurationLabel"  Content="{Binding CurrentSong.Duration}" FontSize="12" Grid.Column="2"/>
             </Grid>
 
-            <MediaElement x:Name="mediaElement" 
+            <!--<MediaElement x:Name="mediaElement" 
               Source="{Binding CurrentSong.FilePath}" 
               LoadedBehavior="Manual" 
               UnloadedBehavior="Stop"
               Volume="0.5"
               MediaOpened="mediaElement_MediaOpened" 
-              MediaEnded="mediaElement_MediaEnded"/>
+              MediaEnded="mediaElement_MediaEnded"/>-->
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 20, 0, 0" >
 
