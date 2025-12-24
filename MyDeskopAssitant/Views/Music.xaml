@@ -172,7 +172,8 @@
                   BorderThickness="1" 
                   BorderBrush="#DDDDDD"
                   Style="{StaticResource ModernGridViewListViewStyle}" 
-                  ItemContainerStyle="{StaticResource GridViewRowStyle}">
+                  ItemContainerStyle="{StaticResource GridViewRowStyle}"
+                      Foreground="{DynamicResource PrimaryBlueColor}">
                 <ListView.View>
                     <GridView ColumnHeaderContainerStyle="{StaticResource GridViewHeaderStyle}">
                         <GridViewColumn Header="#" 

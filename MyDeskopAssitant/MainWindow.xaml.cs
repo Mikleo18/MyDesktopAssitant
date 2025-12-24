@@ -8,20 +8,17 @@ namespace MyDeskopAssitant
 {
     public partial class MainWindow : Window
     {
-        // --- WIDGET SÜRÜKLEME DEĞİŞKENLERİ ---
         private bool _isDragging = false;
-        private Point _startMousePosition;   // Tıklama anındaki fare konumu
-        private Point _startWidgetPosition;  // Tıklama anındaki widget konumu
+        private Point _startMousePosition;   
+        private Point _startWidgetPosition;  
 
         public MainWindow()
         {
             InitializeComponent();
 
-            // 1. ViewModel Bağlantısı
             var vm = new MainViewModel();
             this.DataContext = vm;
 
-            // 2. Olayları Başlat
             SetupPlayerEvents(vm);
         }
 
@@ -95,13 +92,11 @@ namespace MyDeskopAssitant
         private void btnMinimize_Click(object sender, RoutedEventArgs e) => this.WindowState = WindowState.Minimized;
 
 
-        // --- 👇 WIDGET SÜRÜKLEME KODLARI (SON HALİ) 👇 ---
 
         private void MusicWidget_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            // 1. KRİTİK NOKTA: Bu tıklamanın pencereyi de sürüklemesini engelle
-            e.Handled = true;
 
+            e.Handled = true;
             _isDragging = true;
             _startMousePosition = e.GetPosition(this);
             _startWidgetPosition = new Point(WidgetTransform.X, WidgetTransform.Y);
@@ -130,25 +125,25 @@ namespace MyDeskopAssitant
             {
                 _isDragging = false;
                 MusicWidget.ReleaseMouseCapture();
-                e.Handled = true; // Olayı burada bitir
+                e.Handled = true;
             }
         }
 
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
-            this.Hide(); // Pencereyi gizle
+            this.Hide();
             MyNotifyIcon.ShowBalloonTip("Rika", "Arka planda çalışmaya devam ediyorum.", Hardcodet.Wpf.TaskbarNotification.BalloonIcon.Info);
         }
 
-        // 2. İKONA ÇİFT TIKLAYINCA AÇ
+
         private void MyNotifyIcon_TrayMouseDoubleClick(object sender, RoutedEventArgs e)
         {
-            this.Show(); // Pencereyi göster
-            this.WindowState = WindowState.Normal; // Minimize ise düzelt
-            this.Activate(); // Öne getir
+            this.Show(); 
+            this.WindowState = WindowState.Normal; 
+            this.Activate(); 
         }
 
-        // 3. SAĞ TIK -> UYGULAMAYI AÇ
+
         private void ShowApp_Click(object sender, RoutedEventArgs e)
         {
             this.Show();
@@ -156,10 +151,9 @@ namespace MyDeskopAssitant
             this.Activate();
         }
 
-        // 4. SAĞ TIK -> ÇIKIŞ (PROGRAMI TAMAMEN KAPATIR)
+        
         private void ExitApp_Click(object sender, RoutedEventArgs e)
         {
-            // NotifyIcon'ı temizle ki arkada hayalet ikon kalmasın
             MyNotifyIcon.Dispose();
             Application.Current.Shutdown();
         }

@@ -21,24 +21,44 @@
 
             <tb:TaskbarIcon x:Name="MyNotifyIcon"
                 IconSource="/Resources/logo.ico" 
-                ToolTipText="Rika Assistant - Müzik Çalıyor"
+                ToolTipText="Rika Assistant - Arka Planda Çalışıyor"
                 TrayMouseDoubleClick="MyNotifyIcon_TrayMouseDoubleClick">
 
                 <tb:TaskbarIcon.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Oynat / Duraklat" Command="{Binding MusicVm.PlayPauseCommand}">
+
+                        <MenuItem Header="Önceki Şarkı" Command="{Binding MusicVm.PreviousSongCommand}">
                             <MenuItem.Icon>
-                                <TextBlock Text="▶"/>
+                                <TextBlock Text="⏮" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             </MenuItem.Icon>
                         </MenuItem>
 
-                        <MenuItem Header="Sonraki Şarkı" Command="{Binding MusicVm.NextSongCommand}"/>
+                        <MenuItem Header="Oynat / Duraklat" Command="{Binding MusicVm.PlayPauseCommand}">
+                            <MenuItem.Icon>
+                                <TextBlock Text="▶" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+
+                        <MenuItem Header="Sonraki Şarkı" Command="{Binding MusicVm.NextSongCommand}">
+                            <MenuItem.Icon>
+                                <TextBlock Text="⏭" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
 
                         <Separator/>
 
-                        <MenuItem Header="Uygulamayı Aç" Click="ShowApp_Click"/>
+                        <MenuItem Header="Uygulamayı Aç" Click="ShowApp_Click">
+                            <MenuItem.Icon>
+                                <TextBlock Text="💻" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
 
-                        <MenuItem Header="Çıkış" Click="ExitApp_Click"/>
+                        <MenuItem Header="Çıkış" Click="ExitApp_Click">
+                            <MenuItem.Icon>
+                                <TextBlock Text="❌" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+
                     </ContextMenu>
                 </tb:TaskbarIcon.ContextMenu>
             </tb:TaskbarIcon>
@@ -209,9 +229,15 @@
                         </Grid>
 
                         <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,15,0" VerticalAlignment="Center">
-                            <Button Command="{Binding MusicVm.PreviousSongCommand}" Content="⏮" 
-                    Background="Transparent" Foreground="{DynamicResource PrimaryTextColor}" BorderThickness="0" FontSize="16" Margin="0,0,5,0"
-                    Style="{StaticResource MusicControlButton}"/>
+                            <Button Command="{Binding MusicVm.PreviousSongCommand}" 
+                            Background="Transparent" BorderThickness="0" Margin="0,0,5,0"
+                            Style="{StaticResource MusicControlButton}">
+                                <Button.Content>
+                                    <Path Data="M6,18V6H8V18H6M9.5,12L18,6V18L9.5,12Z"
+                                      Fill="{DynamicResource PrimaryTextColor}"
+                                      Stretch="Uniform" Height="14" Width="14"/>
+                                </Button.Content>
+                            </Button>
 
                             <Button Command="{Binding MusicVm.PlayPauseCommand}" 
                             Width="40" Height="40" 
@@ -241,9 +267,15 @@
                                 </Button.Style>
                             </Button>
 
-                            <Button Command="{Binding MusicVm.NextSongCommand}" Content="⏭" 
-                            Background="Transparent" Foreground="{DynamicResource PrimaryTextColor}" BorderThickness="0" FontSize="16" Margin="5,0,0,0"
-                            Style="{StaticResource MusicControlButton}"/>
+                            <Button Command="{Binding MusicVm.NextSongCommand}" 
+                            Background="Transparent" BorderThickness="0" Margin="5,0,0,0"
+                            Style="{StaticResource MusicControlButton}">
+                                <Button.Content>
+                                    <Path Data="M16,18V6H18V18H16M6,18L14.5,12L6,6V18Z"
+                                      Fill="{DynamicResource PrimaryTextColor}"
+                                      Stretch="Uniform" Height="14" Width="14"/>
+                                </Button.Content>
+                            </Button>
                         </StackPanel>
                     </Grid>
                 </Border>

@@ -37,9 +37,6 @@
                 <views:Settings/>
             </DataTemplate>
 
-            <ResourceDictionary x:Key="handy1" Source="pack://application:,,,/HandyControl;component/Themes/SkinDefault.xaml"/>
-            <ResourceDictionary x:Key="handy2" Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
-
         </ResourceDictionary>
     </Application.Resources>
 </Application>

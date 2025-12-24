@@ -1,26 +1,23 @@
 ﻿using MyDeskopAssitant.Core;
 using MyDeskopAssitant.Models;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace MyDeskopAssitant.ViewModels
 {
-    public class CalenderViewModel:BaseViewModel
+    public class CalenderViewModel : BaseViewModel
     {
         private ObservableCollection<CalendarEventModel> _allEvents;
         private ObservableCollection<CalendarEventModel> _displayEvents;
         private DateTime _selectedDate;
         private string _eventInput;
 
-        private string _selectedHour;
-        private string _selectedMinute;
+        // Yeni Saat Değişkenimiz
+        private DateTime _selectedEventTime = DateTime.Now;
 
         private readonly string _jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "calendar_data.json");
 
@@ -29,41 +26,32 @@ namespace MyDeskopAssitant.ViewModels
             _allEvents = new ObservableCollection<CalendarEventModel>();
             DisplayEvents = new ObservableCollection<CalendarEventModel>();
 
-            Hours = new ObservableCollection<string>(Enumerable.Range(0, 24).Select(i => i.ToString("D2")));
-            Minutes = new ObservableCollection<string>(Enumerable.Range(0, 12).Select(i => (i * 5).ToString("D2")));
-
-            SelectedHour = "12";
-            SelectedMinute = "00";
+            // Hours ve Minutes listelerini sildik, HandyControl buna ihtiyaç duymaz.
 
             SelectedDate = DateTime.Now;
 
             AddEventCommand = new RelayCommand(ExecuteAddEvent, CanAddEvent);
             DeleteEventCommand = new RelayCommand(ExecuteDeleteEvent);
 
-
-            RefreshDisplayList();
             LoadEvents();
+            RefreshDisplayList();
         }
 
-        public ObservableCollection<CalendarEventModel> AllEvents // Converter için Public yaptık
+        public ObservableCollection<CalendarEventModel> AllEvents
         {
             get => _allEvents;
             set { _allEvents = value; OnPropertyChanged(); }
         }
 
-        public ObservableCollection<string> Hours { get; }
-        public ObservableCollection<string> Minutes { get; }
-
-        public string SelectedHour
+        // HandyControl TimePicker buraya bağlanacak
+        public DateTime SelectedEventTime
         {
-            get => _selectedHour;
-            set { _selectedHour = value; OnPropertyChanged(); }
-        }
-
-        public string SelectedMinute
-        {
-            get => _selectedMinute;
-            set { _selectedMinute = value; OnPropertyChanged(); }
+            get => _selectedEventTime;
+            set
+            {
+                _selectedEventTime = value;
+                OnPropertyChanged();
+            }
         }
 
         public DateTime SelectedDate
@@ -73,7 +61,7 @@ namespace MyDeskopAssitant.ViewModels
             {
                 _selectedDate = value;
                 OnPropertyChanged();
-                RefreshDisplayList(); // Tarih değişince listeyi güncelle
+                RefreshDisplayList();
             }
         }
 
@@ -92,11 +80,16 @@ namespace MyDeskopAssitant.ViewModels
         public ICommand AddEventCommand { get; }
         public ICommand DeleteEventCommand { get; }
 
+        // 👇👇👇 BURASI DEĞİŞTİ 👇👇👇
         private void ExecuteAddEvent(object obj)
         {
-            DateTime finalDateTime = SelectedDate.Date
-                .AddHours(int.Parse(SelectedHour))
-                .AddMinutes(int.Parse(SelectedMinute));
+            // Eski kod: int.Parse(SelectedHour)... (ARTIK YOK)
+
+            // Yeni Kod:
+            // SelectedDate'in sadece tarihini al (Örn: 24.12.2025 00:00)
+            // SelectedEventTime'ın sadece saatini al (Örn: 14:30)
+            // İkisini topla -> 24.12.2025 14:30
+            DateTime finalDateTime = SelectedDate.Date + SelectedEventTime.TimeOfDay;
 
             var newEvent = new CalendarEventModel
             {
@@ -109,35 +102,24 @@ namespace MyDeskopAssitant.ViewModels
             RefreshDisplayList();
 
             OnPropertyChanged(nameof(AllEvents));
-
-            SaveEvents(); // Kaydet
+            SaveEvents();
         }
 
         private bool CanAddEvent(object obj) => !string.IsNullOrWhiteSpace(EventInput);
 
-        // Seçilen tarihe göre listeyi filtrele
         private void RefreshDisplayList()
         {
-            // Sadece seçili güne ait olanları getir
             var filtered = _allEvents.Where(x => x.Date.Date == SelectedDate.Date).ToList();
-
             DisplayEvents = new ObservableCollection<CalendarEventModel>(filtered);
         }
 
         private void ExecuteDeleteEvent(object obj)
         {
-            // Parametre olarak silinecek olay (CalendarEventModel) gelir
             if (obj is CalendarEventModel eventToDelete)
             {
-                // Ana listeden sil
                 AllEvents.Remove(eventToDelete);
-
-                // Ekranı güncelle
                 RefreshDisplayList();
-
                 OnPropertyChanged(nameof(AllEvents));
-
-                // Değişikliği JSON'a kaydet
                 SaveEvents();
             }
         }
@@ -149,7 +131,7 @@ namespace MyDeskopAssitant.ViewModels
                 var json = JsonSerializer.Serialize(AllEvents);
                 File.WriteAllText(_jsonPath, json);
             }
-            catch { /* Hata yönetimi */ }
+            catch { }
         }
 
         private void LoadEvents()
@@ -165,8 +147,7 @@ namespace MyDeskopAssitant.ViewModels
                     RefreshDisplayList();
                 }
             }
-            catch { /* Hata yönetimi */ }
+            catch { }
         }
-
     }
 }

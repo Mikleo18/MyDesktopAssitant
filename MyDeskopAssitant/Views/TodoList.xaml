@@ -133,7 +133,7 @@
                 <Button DockPanel.Dock="Right" Content="Add Task" 
                         Command="{Binding AddCommand}"
                         Width="100" Height="30" Margin="10,0,0,0"
-                        Style="{StaticResource MusicControlButton}" Background="#444"/>
+                        Style="{StaticResource MusicControlButton}" Background="{DynamicResource PrimaryBlueColor}"/>
 
                 <TextBox Text="{Binding NewTaskContent, UpdateSourceTrigger=PropertyChanged}" 
                          Height="30" VerticalContentAlignment="Center" Padding="5" 
@@ -155,6 +155,5 @@
                 </StackPanel>
             </Border>
         </Grid>
-
     </Grid>
 </UserControl>

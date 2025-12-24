@@ -5,61 +5,73 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MyDeskopAssitant.Views"
              xmlns:converters="clr-namespace:MyDeskopAssitant.Converters"
+             
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             
              mc:Ignorable="d" 
              d:DesignHeight="500" d:DesignWidth="800">
 
     <UserControl.Resources>
-        <converters:DateHasEventConverter x:Key="DateHasEventConverter"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
 
-        <Style x:Key="CustomCalendarDayButtonStyle" TargetType="CalendarDayButton">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="CalendarDayButton">
-                        <Grid>
-                            <VisualStateManager.VisualStateGroups>
-                                <VisualStateGroup x:Name="CommonStates">
-                                    <VisualState x:Name="Normal"/>
-                                    <VisualState x:Name="MouseOver">
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="HighlightCircle" Storyboard.TargetProperty="Opacity" To="0.5" Duration="0"/>
-                                        </Storyboard>
-                                    </VisualState>
-                                </VisualStateGroup>
-                                <VisualStateGroup x:Name="SelectionStates">
-                                    <VisualState x:Name="Unselected"/>
-                                    <VisualState x:Name="Selected">
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="HighlightCircle" Storyboard.TargetProperty="Opacity" To="1" Duration="0"/>
-                                        </Storyboard>
-                                    </VisualState>
-                                </VisualStateGroup>
-                            </VisualStateManager.VisualStateGroups>
+                <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="DeepPurple" SecondaryColor="Lime" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
 
-                            <Ellipse x:Name="HighlightCircle" Fill="{DynamicResource PrimaryBlueColor}" Opacity="0" Width="30" Height="30"/>
+            </ResourceDictionary.MergedDictionaries>
 
-                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                <ContentPresenter x:Name="NormalText" 
-                                                  TextElement.Foreground="{DynamicResource PrimaryTextColor}" 
-                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <converters:DateHasEventConverter x:Key="DateHasEventConverter"/>
 
-                                <Ellipse Width="4" Height="4" Margin="0,2,0,0" Fill="#FF5555">
-                                    <Ellipse.Visibility>
-                                        <MultiBinding Converter="{StaticResource DateHasEventConverter}">
-                                            <Binding />
-                                            <Binding Path="DataContext.AllEvents" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
-                                        </MultiBinding>
-                                    </Ellipse.Visibility>
-                                </Ellipse>
-                            </StackPanel>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+            <Style x:Key="CustomCalendarDayButtonStyle" TargetType="CalendarDayButton">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="CalendarDayButton">
+                            <Grid>
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal"/>
+                                        <VisualState x:Name="MouseOver">
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="HighlightCircle" Storyboard.TargetProperty="Opacity" To="0.5" Duration="0"/>
+                                            </Storyboard>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                    <VisualStateGroup x:Name="SelectionStates">
+                                        <VisualState x:Name="Unselected"/>
+                                        <VisualState x:Name="Selected">
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="HighlightCircle" Storyboard.TargetProperty="Opacity" To="1" Duration="0"/>
+                                            </Storyboard>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+
+                                <Ellipse x:Name="HighlightCircle" Fill="{DynamicResource PrimaryBlueColor}" Opacity="0" Width="30" Height="30"/>
+
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <ContentPresenter x:Name="NormalText" 
+                                                      TextElement.Foreground="{DynamicResource PrimaryTextColor}" 
+                                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                                    <Ellipse Width="4" Height="4" Margin="0,2,0,0" Fill="#FF5555">
+                                        <Ellipse.Visibility>
+                                            <MultiBinding Converter="{StaticResource DateHasEventConverter}">
+                                                <Binding />
+                                                <Binding Path="DataContext.AllEvents" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                            </MultiBinding>
+                                        </Ellipse.Visibility>
+                                    </Ellipse>
+                                </StackPanel>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Background="{DynamicResource PrimaryBackgroundColor}">
@@ -101,8 +113,8 @@
                                 </Grid.ColumnDefinitions>
 
                                 <TextBlock Text="{Binding Date, StringFormat='HH:mm'}" 
-                               Foreground="{DynamicResource PrimaryBlueColor}" 
-                               FontWeight="Bold" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                           Foreground="{DynamicResource PrimaryBlueColor}" 
+                                           FontWeight="Bold" Margin="0,0,10,0" VerticalAlignment="Center"/>
 
                                 <TextBlock Grid.Column="1" Text="{Binding Title}" FontSize="16" VerticalAlignment="Center">
                                     <TextBlock.Style>
@@ -118,35 +130,14 @@
                                     </TextBlock.Style>
                                 </TextBlock>
 
-                                <Button Grid.Column="2"
-                            Width="30" Height="30"
-                            Style="{StaticResource MusicControlButton}"
-                            Background="Transparent"
-                            
-                            Command="{Binding DataContext.DeleteEventCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                            CommandParameter="{Binding}">
-
+                                <Button Grid.Column="2" Width="30" Height="30"
+                                        Style="{StaticResource MusicControlButton}"
+                                        Background="Transparent"
+                                        Command="{Binding DataContext.DeleteEventCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}">
                                     <Path Fill="#FF5555" Stretch="Uniform" Width="12" Height="12"
-                              Data="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" />
-
-                                    <Button.Triggers>
-                                        <EventTrigger RoutedEvent="MouseEnter">
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0.7" Duration="0:0:0.1"/>
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </EventTrigger>
-                                        <EventTrigger RoutedEvent="MouseLeave">
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.1"/>
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </EventTrigger>
-                                    </Button.Triggers>
+                                          Data="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" />
                                 </Button>
-
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -156,27 +147,46 @@
             <Grid Grid.Row="2" Margin="0,10,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <ComboBox ItemsSource="{Binding Hours}" SelectedItem="{Binding SelectedHour}" 
-                          Width="60" Height="40" VerticalContentAlignment="Center" Margin="0,0,5,0" FontSize="14"/>
+                <Border Grid.Column="0" 
+                        Background="White" 
+                        CornerRadius="4" 
+                        Height="40" 
+                        VerticalAlignment="Bottom">
 
-                <TextBlock Grid.Column="1" Text=":" VerticalAlignment="Center" Foreground="Gray" Margin="0,0,5,0" FontWeight="Bold"/>
+                    <materialDesign:TimePicker
+                        SelectedTime="{Binding SelectedEventTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Is24Hours="True"
+                        Width="100"
+                        Height="40"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Margin="5,0"
+                        materialDesign:HintAssist.Hint="Saat"
+                        BorderThickness="0"/>
+                </Border>
 
-                <ComboBox Grid.Column="2" ItemsSource="{Binding Minutes}" SelectedItem="{Binding SelectedMinute}" 
-                          Width="60" Height="40" VerticalContentAlignment="Center" Margin="0,0,10,0" FontSize="14"/>
+                <TextBox Grid.Column="2"
+                         Text="{Binding EventInput, UpdateSourceTrigger=PropertyChanged}"
+                         Height="40"
+                         VerticalContentAlignment="Center"
+                         FontSize="14"
+                         Padding="5"
+                         VerticalAlignment="Bottom"
+                         Foreground="White"/>
 
-                <TextBox Grid.Column="3" Text="{Binding EventInput, UpdateSourceTrigger=PropertyChanged}" 
-                         Height="40" VerticalContentAlignment="Center" Padding="5" 
-                         FontSize="14" Margin="0,0,10,0"/>
-
-                <Button Grid.Column="4" Command="{Binding AddEventCommand}" 
-                        Content="Ekle" Width="80" Height="40"
-                        Style="{StaticResource MusicControlButton}" Background="#444"/>
+                <Button Grid.Column="4" 
+                        Command="{Binding AddEventCommand}" 
+                        Content="Add" 
+                        Width="80" Height="40"
+                        Style="{StaticResource MusicControlButton}" 
+                        Background="{DynamicResource PrimaryBlueColor}"
+                        VerticalAlignment="Bottom"/>
             </Grid>
         </Grid>
     </Grid>
