@@ -10,9 +10,9 @@
         WindowStartupLocation="CenterScreen" WindowStyle="None"
         Background="Transparent" AllowsTransparency="True"
         ResizeMode="NoResize">
+
     <Border Background="{DynamicResource PrimaryBackgroundColor}" x:Name="DragRow" MouseLeftButtonDown="DragRow_MouseLeftButtonDown">
         <Grid>
-            
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
@@ -24,10 +24,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    
-                    
 
-                    <!-- Logo -->
                     <Grid Grid.Row="0">
                         <Border Margin="14 24 0 0" Width="32" Height="24" HorizontalAlignment="Left">
                             <Image Source="/Resources/logo.png" Stretch="Uniform"/>
@@ -42,49 +39,16 @@
                                Margin="60 30 0 0"/>
                     </Grid>
 
-                    <!-- Navigation Buttons -->
                     <StackPanel Grid.Row="1" Margin="-1 40 0 20">
-
-                        <UserControl:MenuItem GroupName="MenuItem" 
-                    Text="Home" 
-                    Icon="{StaticResource home}" 
-                    Command="{Binding NavigateCommand}"
-                    CommandParameter="Home" />
-
-                        <UserControl:MenuItem GroupName="MenuItem" 
-                    Text="Music" 
-                    Icon="{StaticResource music}" 
-                    Command="{Binding NavigateCommand}"
-                    CommandParameter="Music" />
-
-                        <UserControl:MenuItem GroupName="MenuItem" 
-                    Text="Video" 
-                    Icon="{StaticResource video}" 
-                    Command="{Binding NavigateCommand}"
-                    CommandParameter="Video" />
-
-                        <UserControl:MenuItem GroupName="MenuItem" 
-                    Text="Calendar" 
-                    Icon="{StaticResource calendar}" 
-                    Command="{Binding NavigateCommand}"
-                    CommandParameter="Calendar" />
-
-                        <UserControl:MenuItem GroupName="MenuItem" 
-                    Text="To-Do List" 
-                    Icon="{StaticResource todolist}" 
-                    Command="{Binding NavigateCommand}"
-                    CommandParameter="ToDo" />
-
-                        <UserControl:MenuItem GroupName="MenuItem" 
-                    Text="Settings" 
-                    Icon="{StaticResource Settings}" 
-                    Command="{Binding NavigateCommand}"
-                    CommandParameter="Settings" />
-
+                        <UserControl:MenuItem GroupName="MenuItem" Text="Home" Icon="{StaticResource home}" Command="{Binding NavigateCommand}" CommandParameter="Home" />
+                        <UserControl:MenuItem GroupName="MenuItem" Text="Music" Icon="{StaticResource music}" Command="{Binding NavigateCommand}" CommandParameter="Music" />
+                        <UserControl:MenuItem GroupName="MenuItem" Text="Video" Icon="{StaticResource video}" Command="{Binding NavigateCommand}" CommandParameter="Video" />
+                        <UserControl:MenuItem GroupName="MenuItem" Text="Calendar" Icon="{StaticResource calendar}" Command="{Binding NavigateCommand}" CommandParameter="Calendar" />
+                        <UserControl:MenuItem GroupName="MenuItem" Text="To-Do List" Icon="{StaticResource todolist}" Command="{Binding NavigateCommand}" CommandParameter="ToDo" />
+                        <UserControl:MenuItem GroupName="MenuItem" Text="Settings" Icon="{StaticResource Settings}" Command="{Binding NavigateCommand}" CommandParameter="Settings" />
                     </StackPanel>
 
                     <Popup x:Name="Popup"  AllowsTransparency="True"  HorizontalOffset="0" VerticalOffset="10">
-
                     </Popup>
                 </Grid>
             </Border>
@@ -100,16 +64,14 @@
                         <EventTrigger RoutedEvent="ToggleButton.Unchecked">
                             <BeginStoryboard>
                                 <Storyboard x:Name="HideStackPanel">
-                                    <DoubleAnimation Storyboard.TargetName="GridNav" Storyboard.TargetProperty="Width" BeginTime="0:0:0" From="210" To="60" Duration="0:0:0.5">
-                                    </DoubleAnimation>
+                                    <DoubleAnimation Storyboard.TargetName="GridNav" Storyboard.TargetProperty="Width" BeginTime="0:0:0" From="210" To="60" Duration="0:0:0.5"/>
                                 </Storyboard>
                             </BeginStoryboard>
                         </EventTrigger>
                         <EventTrigger RoutedEvent="ToggleButton.Checked">
                             <BeginStoryboard>
                                 <Storyboard x:Name="ShowStackPanel">
-                                    <DoubleAnimation Storyboard.TargetName="GridNav" Storyboard.TargetProperty="Width" BeginTime="0:0:0" From="60" To="210" Duration="0:0:0.5">
-                                    </DoubleAnimation>
+                                    <DoubleAnimation Storyboard.TargetName="GridNav" Storyboard.TargetProperty="Width" BeginTime="0:0:0" From="60" To="210" Duration="0:0:0.5"/>
                                 </Storyboard>
                             </BeginStoryboard>
                         </EventTrigger>
@@ -123,9 +85,136 @@
 
 
                 <ContentControl Grid.Row="1"
-                Margin="20"
-                Content="{Binding CurrentView}">
+                                Margin="20"
+                                Content="{Binding CurrentView}">
                 </ContentControl>
+
+                <MediaElement x:Name="GlobalPlayer"
+                              Visibility="Collapsed"
+                              LoadedBehavior="Manual" 
+                              UnloadedBehavior="Manual"
+                              Source="{Binding MusicVm.CurrentSource}" 
+                              Volume="0.5"
+                              MediaOpened="GlobalPlayer_MediaOpened"
+                              MediaEnded="GlobalPlayer_MediaEnded"/>
+                <Border Grid.Row="1" 
+        x:Name="MusicWidget"
+        Width="320" Height="80" 
+        VerticalAlignment="Bottom" HorizontalAlignment="Right"
+        Margin="30"
+        Background="{DynamicResource SecundaryBackgroundColor}" 
+        CornerRadius="40"
+        BorderBrush="{DynamicResource SecundaryIconColor}" BorderThickness="1"
+        Cursor="SizeAll"
+        MouseLeftButtonDown="MusicWidget_MouseLeftButtonDown"
+        MouseLeftButtonUp="MusicWidget_MouseLeftButtonUp"
+        MouseMove="MusicWidget_MouseMove">
+
+                    <Border.RenderTransform>
+                        <TranslateTransform x:Name="WidgetTransform" X="0" Y="0"/>
+                    </Border.RenderTransform>
+
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding MusicVm.CurrentSong}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+
+                    <Border.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="15" Opacity="0.4" Direction="90"/>
+                    </Border.Effect>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Width="60" Height="60" CornerRadius="30" Margin="10,0,0,0" 
+                BorderBrush="{DynamicResource PrimaryBackgroundColor}" BorderThickness="2">
+                            <Border.Background>
+                                <ImageBrush ImageSource="{Binding MusicVm.CurrentSong.AlbumArt}" Stretch="UniformToFill"/>
+                            </Border.Background>
+                        </Border>
+
+                        <Grid Grid.Column="1" Margin="10,0" VerticalAlignment="Center" ClipToBounds="True">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Canvas Grid.Row="0" Height="20" Width="200">
+                                <TextBlock Text="{Binding MusicVm.SongTitle}" 
+                           Foreground="{DynamicResource PrimaryTextColor}" 
+                           FontWeight="Bold" FontSize="13"
+                           Canvas.Left="0"
+                           VerticalAlignment="Center">
+                                    <TextBlock.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard RepeatBehavior="Forever">
+                                                    <DoubleAnimation Storyboard.TargetProperty="(Canvas.Left)"
+                                                     From="0" To="-100" Duration="0:0:5" 
+                                                     AutoReverse="True"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </TextBlock.Triggers>
+                                </TextBlock>
+                            </Canvas>
+
+                            <TextBlock Grid.Row="1" Text="{Binding MusicVm.ComposerName}" 
+                       Foreground="{DynamicResource SecundaryIconColor}" 
+                       FontSize="11" TextTrimming="CharacterEllipsis"/>
+
+                            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,2,0,0">
+                                <Path Data="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"
+                      Fill="{DynamicResource PrimaryBlueColor}" Height="10" Width="10" Stretch="Uniform" Margin="0,0,4,0"/>
+
+                                <TextBlock Text="{Binding MusicVm.CurrentTimeDisplay}" 
+                           Foreground="{DynamicResource PrimaryBlueColor}" 
+                           FontSize="10" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,15,0" VerticalAlignment="Center">
+                            <Button Command="{Binding MusicVm.PreviousSongCommand}" Content="⏮" 
+                    Background="Transparent" Foreground="{DynamicResource PrimaryTextColor}" BorderThickness="0" FontSize="16" Margin="0,0,5,0"
+                    Style="{StaticResource MusicControlButton}"/>
+
+                            <Button Command="{Binding MusicVm.PlayPauseCommand}" 
+                    Width="35" Height="35" Background="{DynamicResource PrimaryBlueColor}" Foreground="White" BorderThickness="0"
+                    Style="{StaticResource MusicControlButton}">
+                                <Button.Content>
+                                    <Path Data="M8,5.14V19.14L19,12.14L8,5.14Z" Fill="White" Stretch="Uniform" Height="14" Width="14" Margin="2,0,0,0"/>
+                                </Button.Content>
+                                <Button.Resources>
+                                    <Style TargetType="Button" BasedOn="{StaticResource MusicControlButton}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding MusicVm.IsPlaying}" Value="True">
+                                                <Setter Property="Content">
+                                                    <Setter.Value>
+                                                        <Path Data="M14,19H18V5H14M6,19H10V5H6V19Z" Fill="White" Stretch="Uniform" Height="14" Width="14"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+
+                            <Button Command="{Binding MusicVm.NextSongCommand}" Content="⏭" 
+                    Background="Transparent" Foreground="{DynamicResource PrimaryTextColor}" BorderThickness="0" FontSize="16" Margin="5,0,0,0"
+                    Style="{StaticResource MusicControlButton}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
             </Grid>
         </Grid>
     </Border>

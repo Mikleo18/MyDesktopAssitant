@@ -49,10 +49,7 @@ namespace MyDeskopAssitant.Core
                 var json = JsonSerializer.Serialize(CurrentSettings);
                 File.WriteAllText(_settingsPath, json);
             }
-            catch 
-            { 
-                // Hata durumunda hiçbir şey yapma, ayarları kaydetme başarısız oldu
-            }
+            catch  {  }
         }
 
         public static void ApplyTheme(bool isDark)

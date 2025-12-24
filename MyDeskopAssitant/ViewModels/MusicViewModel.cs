@@ -69,6 +69,19 @@ namespace MyDeskopAssitant.ViewModels
             }
         }
 
+        public Uri CurrentSource
+        {
+            get
+            {
+                // Şarkı yoksa veya dosya yolu boşsa null döndür
+                if (CurrentSong == null || string.IsNullOrEmpty(CurrentSong.FilePath))
+                    return null;
+
+                // Dosya yolunu URI formatına çevir
+                return new Uri(CurrentSong.FilePath);
+            }
+        }
+
         public bool IsLooping
         {
             get => _isLooping;
@@ -90,6 +103,7 @@ namespace MyDeskopAssitant.ViewModels
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(SongTitle));
                 OnPropertyChanged(nameof(ComposerName));
+                OnPropertyChanged(nameof(CurrentSource));
 
                 // Şarkı değiştiğinde pozisyonu ve süreyi sıfırla
                 CurrentPosition = 0;
@@ -447,6 +461,23 @@ namespace MyDeskopAssitant.ViewModels
             {
                 System.Diagnostics.Debug.WriteLine($"Kaydetme Hatası: {ex.Message}");
             }
+        }
+
+        public void SetDuration(TimeSpan duration)
+        {
+            SliderMaximum = duration.TotalSeconds;
+
+            // İstersen burada toplam süreyi string olarak da güncelleyebilirsin
+            // TotalTimeStr = duration.ToString(@"mm\:ss");
+        }
+
+        /// <summary>
+        /// MediaElement şarkıyı bitirdiğinde (MediaEnded) bu metodu çağırır.
+        /// </summary>
+        public void OnSongEnded()
+        {
+            // Senin zaten yazdığın ExecuteSongEnded metodunu çalıştırır.
+            ExecuteSongEnded(null);
         }
 
         // 2. YÜKLEME METODU

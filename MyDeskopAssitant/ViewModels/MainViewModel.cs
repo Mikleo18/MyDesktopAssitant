@@ -31,7 +31,8 @@ namespace MyDeskopAssitant.ViewModels
         {
 
 
-            MusicVm = App.MusicVM;
+            //MusicVm = App.MusicVM;
+            MusicVm = new MusicViewModel();
             VideoVm = new VideoViewModel();
             CalenderVm = new CalenderViewModel();
             ToDoListVm = new ToDoViewModel();
