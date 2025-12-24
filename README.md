@@ -10,7 +10,7 @@
 
 ## 📸 Screenshots
 
-| Music Player (Blurred UI) | Dashboard & Widget |
+| Music Player | Dashboard|
 |:-------------------------:|:------------------:|
 | ![Music Player](Screenshots/music_player.png) | ![Dashboard](Screenshots/dashboard.png) |
 
