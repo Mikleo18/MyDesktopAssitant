@@ -36,7 +36,7 @@ namespace MyDeskopAssitant.ViewModels
         private string _weatherCity;
 
         // API BİLGİLERİ
-        private const string ApiKey = "65605f4aabb3ef7f72469ebcbf827af1";
+        private const string ApiKey = "YOUR API KEY";
         private const string City = "Istanbul"; 
         private const string Unit = "metric";
 
@@ -331,6 +331,29 @@ namespace MyDeskopAssitant.ViewModels
         {
             get => _weatherCity;
             set { _weatherCity = value; OnPropertyChanged(); }
+        }
+
+        public string GetWeatherApiKey()
+        {
+            // Dosya yolu
+            string configFile = "appsettings.json";
+
+            if (File.Exists(configFile))
+            {
+                // Dosyayı oku
+                string jsonString = File.ReadAllText(configFile);
+
+                // JSON'u parse et (Basitçe JsonDocument kullanarak)
+                using (JsonDocument doc = JsonDocument.Parse(jsonString))
+                {
+                    return doc.RootElement
+                              .GetProperty("OpenWeatherMap")
+                              .GetProperty("ApiKey")
+                              .GetString();
+                }
+            }
+
+            return string.Empty; // Dosya yoksa boş dön
         }
     }
 }
