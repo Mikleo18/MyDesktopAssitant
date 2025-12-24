@@ -41,13 +41,12 @@ namespace MyDeskopAssitant.Views
         // Slider ile sarma işlemi
         private void slider_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (sender is Slider slider && _viewModel != null)
+            if (sender is Slider slider && this.DataContext is MusicViewModel vm)
             {
-                // ViewModel'e "Beni bu saniyeye sar" emri veriyoruz.
-                // Bu emri MainWindow duyacak ve GlobalPlayer'ı saracak.
-                if (_viewModel.SeekCommand.CanExecute(slider.Value))
+                // Doğrudan ViewModel'deki yeni komutu çalıştırıyoruz
+                if (vm.SeekCommand.CanExecute(slider.Value))
                 {
-                    _viewModel.SeekCommand.Execute(slider.Value);
+                    vm.SeekCommand.Execute(slider.Value);
                 }
             }
         }

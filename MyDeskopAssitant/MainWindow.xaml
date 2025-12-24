@@ -134,14 +134,7 @@
                                 Content="{Binding CurrentView}">
                 </ContentControl>
 
-                <MediaElement x:Name="GlobalPlayer"
-                              Visibility="Collapsed"
-                              LoadedBehavior="Manual" 
-                              UnloadedBehavior="Manual"
-                              Source="{Binding MusicVm.CurrentSource}" 
-                              Volume="0.5"
-                              MediaOpened="GlobalPlayer_MediaOpened"
-                              MediaEnded="GlobalPlayer_MediaEnded"/>
+
                 <Border Grid.Row="1" 
                 x:Name="MusicWidget"
                 Width="320" Height="80" 

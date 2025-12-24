@@ -1,97 +1,83 @@
 ﻿using Microsoft.Win32;
 using MyDeskopAssitant.Core;
 using MyDeskopAssitant.Models;
+using NAudio.Wave; // NAudio Kütüphanesi
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using TagLib;
 
 namespace MyDeskopAssitant.ViewModels
 {
     public class MusicViewModel : BaseViewModel
     {
+        // --- NAUDIO BİLEŞENLERİ ---
+        private IWavePlayer _wavePlayer;          // Ses Çıkış Cihazı
+        private AudioFileReader _audioFileReader; // Ses Dosyası Okuyucusu
+
+        // --- DEĞİŞKENLER ---
         private DispatcherTimer _timer;
         private bool _isplaying;
         private SongModel _currentSong;
-        private double _currentPosition;
+        private double _currentPosition; // Saniye cinsinden
         private double _sliderMaximum;
         private string _currentTimeDisplay = "00:00";
-        private ObservableCollection<SongModel> _playlist;
+        private ObservableCollection<SongModel> _songs;
+
         public event Action<double> RequestSeek;
         private bool _isLooping;
         private readonly string _savePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "playlist_data.json");
 
         public MusicViewModel()
         {
+            // Komutları Başlat
             PlayPauseCommand = new RelayCommand(ExecutePlayPause);
             NextSongCommand = new RelayCommand(ExecuteNextSong, CanExecuteNextPrevSong);
             PreviousSongCommand = new RelayCommand(ExecutePreviousSong, CanExecuteNextPrevSong);
             AddSongCommand = new RelayCommand(ExecuteAddSong);
             RemoveSongCommand = new RelayCommand(ExecuteRemoveSong);
-            SeekCommand = new RelayCommand(ExecuteSeek);
+            SeekCommand = new RelayCommand(ExecuteSeek); // Slider için
             ForwardCommand = new RelayCommand(ExecuteForward);
             RewindCommand = new RelayCommand(ExecuteRewind);
             MixCommand = new RelayCommand(ExecuteMix);
             LoopCommand = new RelayCommand(ExecuteLoop);
             SongEndedCommand = new RelayCommand(ExecuteSongEnded);
 
-
-            _playlist = new ObservableCollection<SongModel>();
+            _songs = new ObservableCollection<SongModel>();
             LoadPlaylist();
+
+            // Timer Ayarları
             _timer = new DispatcherTimer();
-            _timer.Interval = TimeSpan.FromSeconds(1);
+            _timer.Interval = TimeSpan.FromMilliseconds(500);
             _timer.Tick += Timer_Tick;
-
-            
-
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
+        // --- EKSİK OLAN ICOMMAND ÖZELLİKLERİ (EKLENDİ) ---
+        public ICommand PlayPauseCommand { get; }
+        public ICommand NextSongCommand { get; }
+        public ICommand PreviousSongCommand { get; }
+        public ICommand AddSongCommand { get; }
+        public ICommand RemoveSongCommand { get; }
+        public ICommand SeekCommand { get; }
+        public ICommand ForwardCommand { get; }
+        public ICommand RewindCommand { get; }
+        public ICommand MixCommand { get; }
+        public ICommand LoopCommand { get; }
+        public ICommand SongEndedCommand { get; }
+
+
+        // --- PROPERTYLER ---
+
+        public ObservableCollection<SongModel> Songs
         {
-            if (CurrentSong == null || !IsPlaying) return;
-
-            CurrentPosition += 1;
-
-            if (CurrentPosition >= SliderMaximum && SliderMaximum > 0)
-            {
-                _timer.Stop();
-                ExecuteNextSong(null);
-            }
-        }
-
-        public Uri CurrentSource
-        {
-            get
-            {
-                // Şarkı yoksa veya dosya yolu boşsa null döndür
-                if (CurrentSong == null || string.IsNullOrEmpty(CurrentSong.FilePath))
-                    return null;
-
-                // Dosya yolunu URI formatına çevir
-                return new Uri(CurrentSong.FilePath);
-            }
-        }
-
-        public bool IsLooping
-        {
-            get => _isLooping;
-            set { _isLooping = value; OnPropertyChanged(); }
-        }
-
-        public ObservableCollection<SongModel> Playlist
-        {
-            get => _playlist;
-            set { _playlist = value; OnPropertyChanged(); }
+            get => _songs;
+            set { _songs = value; OnPropertyChanged(); }
         }
 
         public SongModel CurrentSong
@@ -99,27 +85,26 @@ namespace MyDeskopAssitant.ViewModels
             get => _currentSong;
             set
             {
+                if (_currentSong == value) return;
+
                 _currentSong = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(SongTitle));
                 OnPropertyChanged(nameof(ComposerName));
-                OnPropertyChanged(nameof(CurrentSource));
 
-                // Şarkı değiştiğinde pozisyonu ve süreyi sıfırla
-                CurrentPosition = 0;
-                CurrentTimeDisplay = "00:00";
-
-                // Eğer şarkı null ise (liste temizlendiyse) çalmayı durdur
-                if (_currentSong == null)
+                // Şarkı değişince NAudio ile çalmayı başlat
+                if (_currentSong != null)
                 {
-                    IsPlaying = false;
-                    SliderMaximum = 1; // Hata vermemesi için güvenli değer
+                    PlaySongInternal(_currentSong);
+                }
+                else
+                {
+                    StopAndDispose();
                 }
             }
         }
 
-
-        public string SongTitle => CurrentSong?.Name ?? "Choose a song"; 
+        public string SongTitle => CurrentSong?.Name ?? "Bir şarkı seçin";
         public string ComposerName => CurrentSong?.Composer ?? "";
 
         public bool IsPlaying
@@ -127,13 +112,16 @@ namespace MyDeskopAssitant.ViewModels
             get => _isplaying;
             set
             {
-                // Şarkı yoksa asla true olamaz
-                if (CurrentSong == null) _isplaying = false;
-                else _isplaying = value;
-
+                if (_isplaying == value) return;
+                _isplaying = value;
                 OnPropertyChanged();
-                if (_isplaying) _timer.Start(); else _timer.Stop();
             }
+        }
+
+        public bool IsLooping
+        {
+            get => _isLooping;
+            set { _isLooping = value; OnPropertyChanged(); }
         }
 
         public double SliderMaximum
@@ -147,11 +135,16 @@ namespace MyDeskopAssitant.ViewModels
             get => _currentPosition;
             set
             {
+                if (Math.Abs(_currentPosition - value) < 0.1) return;
+
                 _currentPosition = value;
                 OnPropertyChanged();
                 UpdateTimeDisplay(value);
             }
         }
+
+        public double TotalSeconds => SliderMaximum;
+        public double CurrentSeconds => CurrentPosition;
 
         public string CurrentTimeDisplay
         {
@@ -159,134 +152,295 @@ namespace MyDeskopAssitant.ViewModels
             set { _currentTimeDisplay = value; OnPropertyChanged(); }
         }
 
-        private void UpdateTimeDisplay(double seconds)
+        // --- NAUDIO MANTIKLARI ---
+
+        private void PlaySongInternal(SongModel song)
         {
-            var timeSpan = TimeSpan.FromSeconds(seconds);
-            CurrentTimeDisplay = $"{(int)timeSpan.TotalMinutes:D2}:{timeSpan.Seconds:D2}";
-        } 
+            try
+            {
+                StopAndDispose();
 
-        public ICommand PlayPauseCommand { get; }
-        public ICommand NextSongCommand { get; }
-        public ICommand PreviousSongCommand { get; }
-        public ICommand AddSongCommand { get; }
-        public ICommand RemoveSongCommand { get; }
-        public ICommand SeekCommand { get; }
-        public ICommand ForwardCommand { get; }
-        public ICommand RewindCommand { get; }
-        public ICommand MixCommand { get; }
-        public ICommand LoopCommand { get; }
-        public ICommand SongEndedCommand { get; }
+                if (!File.Exists(song.FilePath)) return;
 
-        private bool CanExecutePlay(object obj) => CurrentSong != null;
-        private bool CanExecuteNextPrevSong(object obj) => Playlist != null && Playlist.Count > 0;
+                _audioFileReader = new AudioFileReader(song.FilePath);
+                _wavePlayer = new WaveOutEvent();
+
+                _wavePlayer.Init(_audioFileReader);
+                _wavePlayer.PlaybackStopped += OnPlaybackStopped;
+
+                SliderMaximum = _audioFileReader.TotalTime.TotalSeconds;
+                OnPropertyChanged(nameof(TotalSeconds));
+
+                _wavePlayer.Play();
+                IsPlaying = true;
+                _timer.Start();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Oynatma Hatası: {ex.Message}");
+            }
+        }
+
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            if (_audioFileReader != null)
+            {
+                CurrentPosition = _audioFileReader.CurrentTime.TotalSeconds;
+                OnPropertyChanged(nameof(CurrentSeconds));
+            }
+        }
+
+        private void StopAndDispose()
+        {
+            _timer.Stop();
+            IsPlaying = false;
+            CurrentPosition = 0;
+            CurrentTimeDisplay = "00:00";
+
+            if (_wavePlayer != null)
+            {
+                _wavePlayer.Stop();
+                _wavePlayer.Dispose();
+                _wavePlayer = null;
+            }
+
+            if (_audioFileReader != null)
+            {
+                _audioFileReader.Dispose();
+                _audioFileReader = null;
+            }
+        }
+
+        private void OnPlaybackStopped(object sender, StoppedEventArgs e)
+        {
+            if (_audioFileReader != null && Math.Abs(_audioFileReader.CurrentTime.TotalSeconds - _audioFileReader.TotalTime.TotalSeconds) < 1)
+            {
+                ExecuteSongEnded(null);
+            }
+        }
+
+        // --- KOMUT METOTLARI ---
+
+        private bool CanExecuteNextPrevSong(object obj) => Songs != null && Songs.Count > 0;
+
         private void ExecutePlayPause(object obj)
         {
-            if (CurrentSong != null)
+            if (_wavePlayer == null && CurrentSong != null)
             {
-                IsPlaying = !IsPlaying;
+                PlaySongInternal(CurrentSong);
+                return;
             }
+
+            if (_wavePlayer != null)
+            {
+                if (_wavePlayer.PlaybackState == PlaybackState.Playing)
+                {
+                    _wavePlayer.Pause();
+                    IsPlaying = false;
+                    _timer.Stop();
+                }
+                else
+                {
+                    _wavePlayer.Play();
+                    IsPlaying = true;
+                    _timer.Start();
+                }
+            }
+        }
+
+        private void ExecuteSeek(object parameter)
+        {
+            if (_audioFileReader != null && parameter is double seconds)
+            {
+                _audioFileReader.CurrentTime = TimeSpan.FromSeconds(seconds);
+                CurrentPosition = seconds;
+            }
+        }
+
+        private void ExecuteNextSong(object obj)
+        {
+            if (Songs.Count == 0) return;
+
+            int currentIndex = Songs.IndexOf(CurrentSong);
+            int nextIndex = (currentIndex + 1) % Songs.Count;
+            CurrentSong = Songs[nextIndex];
         }
 
         private void ExecutePreviousSong(object obj)
         {
-            if (Playlist.Count == 0 || CurrentSong == null) return;
+            if (Songs.Count == 0 || CurrentSong == null) return;
 
-            int currentIndex = Playlist.IndexOf(CurrentSong);
+            int currentIndex = Songs.IndexOf(CurrentSong);
             if (currentIndex == -1) currentIndex = 0;
 
-            int prevIndex = (currentIndex - 1 + Playlist.Count) % Playlist.Count;
-            CurrentSong = Playlist[prevIndex];
+            int prevIndex = (currentIndex - 1 + Songs.Count) % Songs.Count;
+            CurrentSong = Songs[prevIndex];
+        }
+
+        private void ExecuteForward(object obj)
+        {
+            if (_audioFileReader == null) return;
+
+            double newTime = _audioFileReader.CurrentTime.TotalSeconds + 10;
+            if (newTime > _audioFileReader.TotalTime.TotalSeconds)
+                newTime = _audioFileReader.TotalTime.TotalSeconds;
+
+            _audioFileReader.CurrentTime = TimeSpan.FromSeconds(newTime);
+            CurrentPosition = newTime;
+        }
+
+        private void ExecuteRewind(object obj)
+        {
+            if (_audioFileReader == null) return;
+
+            double newTime = _audioFileReader.CurrentTime.TotalSeconds - 10;
+            if (newTime < 0) newTime = 0;
+
+            _audioFileReader.CurrentTime = TimeSpan.FromSeconds(newTime);
+            CurrentPosition = newTime;
+        }
+
+        private void ExecuteMix(object obj)
+        {
+            if (Songs.Count < 2) return;
+
+            var current = CurrentSong;
+            List<SongModel> newOrderList;
+
+            if (current != null)
+            {
+                var otherSongs = Songs.Where(s => s != current)
+                                       .OrderBy(x => Guid.NewGuid())
+                                       .ToList();
+                newOrderList = new List<SongModel>();
+                newOrderList.Add(current);
+                newOrderList.AddRange(otherSongs);
+            }
+            else
+            {
+                newOrderList = Songs.OrderBy(x => Guid.NewGuid()).ToList();
+            }
+
+            for (int i = 0; i < newOrderList.Count; i++) newOrderList[i].Id = i + 1;
+
+            Songs = new ObservableCollection<SongModel>(newOrderList);
+            CurrentSong = current;
+            SavePlaylist();
+        }
+
+        private void ExecuteLoop(object obj)
+        {
+            IsLooping = !IsLooping;
+        }
+
+        private void ExecuteSongEnded(object obj)
+        {
+            if (IsLooping)
+            {
+                if (_audioFileReader != null)
+                {
+                    _audioFileReader.CurrentTime = TimeSpan.Zero;
+                    _wavePlayer.Play();
+                    _timer.Start();
+                    IsPlaying = true;
+                }
+            }
+            else
+            {
+                ExecuteNextSong(null);
+            }
         }
 
         private void ExecuteAddSong(object obj)
         {
-            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
+            OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Multiselect = true;
             openFileDialog.Filter = "Audio Files|*.mp3;*.flac;*.wav|All Files|*.*";
 
-
             if (openFileDialog.ShowDialog() == true)
             {
-                bool wasEmpty = Playlist.Count == 0;
+                bool wasEmpty = Songs.Count == 0;
 
                 foreach (string filename in openFileDialog.FileNames)
                 {
                     try
                     {
-                        // TagLib ile dosyayı oku
                         var tfile = TagLib.File.Create(filename);
-
                         var song = new SongModel
                         {
-                            Id = Playlist.Count + 1,
-                            // Eğer Tag'de başlık varsa onu al, yoksa dosya adını al
+                            Id = Songs.Count + 1,
                             Name = !string.IsNullOrWhiteSpace(tfile.Tag.Title) ? tfile.Tag.Title : Path.GetFileNameWithoutExtension(filename),
-
-                            // Sanatçı bilgisini al
                             Composer = !string.IsNullOrWhiteSpace(tfile.Tag.FirstPerformer) ? tfile.Tag.FirstPerformer : "Bilinmeyen Sanatçı",
-
                             FilePath = filename,
-
-                            // Süreyi direkt dosyadan al (MediaElement'i beklemeye gerek yok artık!)
                             Duration = tfile.Properties.Duration.ToString(@"mm\:ss"),
-
-                            // Kapak resmini çek (Aşağıdaki yardımcı metodu kullanır)
                             AlbumArt = GetAlbumArt(tfile)
                         };
 
-                        Playlist.Add(song);
+                        Songs.Add(song);
                     }
                     catch (Exception ex)
                     {
-                        // Dosya bozuksa veya okunamadıysa buraya düşer
-                        System.Diagnostics.Debug.WriteLine($"Hata: {filename} okunamadı. {ex.Message}");
+                        System.Diagnostics.Debug.WriteLine($"Dosya Hatası: {filename} - {ex.Message}");
                     }
                 }
 
-                if (wasEmpty && Playlist.Count > 0)
+                if (wasEmpty && Songs.Count > 0)
                 {
-                    CurrentSong = Playlist[0];
-                    // Otomatik başlatmak istersen: IsPlaying = true;
-                    // Ama önce SliderMaximum'u ayarlamak için MediaElement'in yüklenmesini beklemek daha sağlıklıdır.
+                    CurrentSong = Songs[0];
                 }
-
                 SavePlaylist();
             }
         }
 
-        // Kapak Resmini Dönüştüren Yardımcı Metot
+        private void ExecuteRemoveSong(object parameter)
+        {
+            var songToDelete = parameter as SongModel ?? CurrentSong;
+
+            if (songToDelete != null)
+            {
+                if (songToDelete == CurrentSong)
+                {
+                    StopAndDispose();
+
+                    if (Songs.Count > 1) ExecuteNextSong(null);
+                    else CurrentSong = null;
+                }
+                Songs.Remove(songToDelete);
+            }
+            SavePlaylist();
+        }
+
+        // --- YARDIMCI METOTLAR ---
+
+        private void UpdateTimeDisplay(double seconds)
+        {
+            var timeSpan = TimeSpan.FromSeconds(seconds);
+            CurrentTimeDisplay = $"{(int)timeSpan.TotalMinutes:D2}:{timeSpan.Seconds:D2}";
+        }
+
         private ImageSource GetAlbumArt(TagLib.File tfile)
         {
-            // Dosyada resim var mı kontrol et
             if (tfile.Tag.Pictures.Length > 0)
             {
                 try
                 {
-                    // İlk resmi al (Genelde kapak resmi 0. indekstir)
                     var bin = tfile.Tag.Pictures[0].Data.Data;
-
-                    // Byte dizisini BitmapImage'a çevir
                     var image = new BitmapImage();
                     using (var mem = new MemoryStream(bin))
                     {
                         mem.Position = 0;
                         image.BeginInit();
                         image.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
-                        image.CacheOption = BitmapCacheOption.OnLoad; // Belleğe yükle
+                        image.CacheOption = BitmapCacheOption.OnLoad;
                         image.UriSource = null;
                         image.StreamSource = mem;
                         image.EndInit();
                     }
-                    image.Freeze(); // UI Thread dışında erişim için dondur
+                    image.Freeze();
                     return image;
                 }
-                catch
-                {
-                    return LoadDefaultImage();
-                }
+                catch { return LoadDefaultImage(); }
             }
-
-            // Resim yoksa varsayılan resmi döndür
             return LoadDefaultImage();
         }
 
@@ -294,244 +448,54 @@ namespace MyDeskopAssitant.ViewModels
         {
             try
             {
-                // WPF'te kaynak dosyalarına erişim formatı: pack://application:,,,/KLASÖR_ADI/DOSYA_ADI
-                var uri = new Uri("pack://application:/Resources/pp31.jpg", UriKind.Absolute);
+                var uri = new Uri("pack://application:,,,/Resources/pp31.jpg", UriKind.Absolute);
                 return new BitmapImage(uri);
             }
-            catch
-            {
-                // Eğer resim bulunamazsa null dönsün (program çökmesin)
-                return null;
-            }
+            catch { return null; }
         }
 
-
-        private void ExecuteSeek(object position)
-        {
-
-        }
-
-        private void ExecuteNextSong(object obj)
-        {
-            if(Playlist.Count == 0) return;
-
-            int currentIndex = Playlist.IndexOf(CurrentSong);
-            int nextIndex = (currentIndex + 1) % Playlist.Count;
-            CurrentSong = Playlist[nextIndex];
-
-            IsPlaying = false;
-        }
-
-        private void ExecuteForward(object obj)
-        {
-            if (CurrentSong == null) return;
-
-            // SliderMaximum'u geçmemeli
-            double newPos = CurrentPosition + 10;
-            if (newPos > SliderMaximum) newPos = SliderMaximum;
-
-            CurrentPosition = newPos;
-
-            // View'a haber ver: "Medya oynatıcısını bu saniyeye al"
-            RequestSeek?.Invoke(newPos);
-        }
-
-        private void ExecuteRewind(object obj)
-        {
-            if (CurrentSong == null) return;
-
-            // 0'ın altına düşmemeli
-            double newPos = CurrentPosition - 10;
-            if (newPos < 0) newPos = 0;
-
-            CurrentPosition = newPos;
-
-            // View'a haber ver
-            RequestSeek?.Invoke(newPos);
-        }
-
-        private void ExecuteMix(object obj)
-        {
-            // Listede karıştırılacak kadar şarkı yoksa çık
-            if (Playlist.Count < 2) return;
-
-            var current = CurrentSong;
-
-            // YENİ LİSTE OLUŞTURMA MANTIĞI:
-            List<SongModel> newOrderList;
-
-            if (current != null)
-            {
-                // 1. Çalan şarkı HARİÇ diğerlerini al ve karıştır
-                var otherSongs = Playlist.Where(s => s != current)
-                                         .OrderBy(x => Guid.NewGuid())
-                                         .ToList();
-
-                // 2. Yeni listeyi oluştur: [Çalan Şarkı] + [Karışık Diğerleri]
-                newOrderList = new List<SongModel>();
-                newOrderList.Add(current); // En başa ekle
-                newOrderList.AddRange(otherSongs); // Devamına diğerlerini ekle
-            }
-            else
-            {
-                // Eğer hiçbir şey çalmıyorsa hepsini rastgele karıştır
-                newOrderList = Playlist.OrderBy(x => Guid.NewGuid()).ToList();
-            }
-
-            // 3. ID NUMARALARINI DÜZELT (1, 2, 3...)
-            for (int i = 0; i < newOrderList.Count; i++)
-            {
-                newOrderList[i].Id = i + 1;
-            }
-
-            // 4. Listeyi Güncelle
-            Playlist = new ObservableCollection<SongModel>(newOrderList);
-
-            // 5. Çalan şarkıyı tekrar seçili hale getir (Zaten 1. sırada)
-            CurrentSong = current;
-
-            // Değişikliği kaydet (JSON sistemin varsa)
-            SavePlaylist();
-        }
-
-        // 2. LOOP (DÖNGÜ) MANTIĞI
-        private void ExecuteLoop(object obj)
-        {
-            // True ise False, False ise True yap (Toggle)
-            IsLooping = !IsLooping;
-        }
-
-        // 3. ŞARKI BİTİNCE NE OLSUN? (MediaEnded Eventi Burayı Çağıracak)
-        private void ExecuteSongEnded(object obj)
-        {
-            if (IsLooping)
-            {
-                // Döngü açıksa başa sar ve oynat
-                RequestSeek?.Invoke(0); // View'daki olayı tetikler
-                IsPlaying = true;
-            }
-            else
-            {
-                // Döngü kapalıysa sıradaki şarkıya geç
-                ExecuteNextSong(null);
-            }
-        }
-
-        // 4. TRASH (SİL) MANTIĞI
-        private void ExecuteRemoveSong(object parameter)
-        {
-            // Eğer parametre gelmişse (Button'dan tıklanan satır) onu sil
-            // Gelmemişse o an seçili olanı (CurrentSong) sil
-            var songToDelete = parameter as SongModel ?? CurrentSong;
-
-            if (songToDelete != null)
-            {
-                // Eğer silinen şarkı şu an çalan şarkıysa, önce sonrakine geçelim veya durduralım
-                if (songToDelete == CurrentSong)
-                {
-                    if (Playlist.Count > 1)
-                    {
-                        ExecuteNextSong(null); // Sonrakine geç
-                    }
-                    else
-                    {
-                        // Listede tek şarkı varsa ve onu siliyorsak
-                        IsPlaying = false;
-                        CurrentSong = null;
-                    }
-                }
-
-                Playlist.Remove(songToDelete);
-            }
-
-            SavePlaylist();
-        }
-
+        // --- SAVE / LOAD ---
         public void SavePlaylist()
         {
             try
             {
-                // Listeyi JSON formatına çevir (WriteIndented=true okunabilir yapar)
-                string jsonString = JsonSerializer.Serialize(Playlist, new JsonSerializerOptions { WriteIndented = true });
-
-                // Dosyayı diske yaz
-                System.IO.File.WriteAllText(_savePath, jsonString);
+                string jsonString = JsonSerializer.Serialize(Songs, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(_savePath, jsonString);
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Kaydetme Hatası: {ex.Message}");
-            }
+            catch { }
         }
 
-        public void SetDuration(TimeSpan duration)
-        {
-            SliderMaximum = duration.TotalSeconds;
-
-            // İstersen burada toplam süreyi string olarak da güncelleyebilirsin
-            // TotalTimeStr = duration.ToString(@"mm\:ss");
-        }
-
-        /// <summary>
-        /// MediaElement şarkıyı bitirdiğinde (MediaEnded) bu metodu çağırır.
-        /// </summary>
-        public void OnSongEnded()
-        {
-            // Senin zaten yazdığın ExecuteSongEnded metodunu çalıştırır.
-            ExecuteSongEnded(null);
-        }
-
-        // 2. YÜKLEME METODU
         public void LoadPlaylist()
         {
-            // Eğer kayıt dosyası yoksa işlem yapma
-            if (!System.IO.File.Exists(_savePath)) return;
-
+            if (!File.Exists(_savePath)) return;
             try
             {
-                // Dosyayı oku
-                string jsonString = System.IO.File.ReadAllText(_savePath);
-
-                // JSON'u geçici bir listeye çevir
+                string jsonString = File.ReadAllText(_savePath);
                 var savedSongs = JsonSerializer.Deserialize<ObservableCollection<SongModel>>(jsonString);
 
                 if (savedSongs != null)
                 {
-                    Playlist.Clear();
-
+                    Songs.Clear();
                     foreach (var song in savedSongs)
                     {
-                        // ÖNEMLİ: Dosya hala bilgisayarda duruyor mu? (Silinmiş olabilir)
-                        if (System.IO.File.Exists(song.FilePath))
+                        if (File.Exists(song.FilePath))
                         {
-                            // Dosya varsa TagLib ile tekrar oku (Kapak resmini yüklemek için)
                             try
                             {
                                 var tfile = TagLib.File.Create(song.FilePath);
-
-                                // Resim yükleme metodunu kullanarak resmi tekrar oluştur
                                 song.AlbumArt = GetAlbumArt(tfile);
-
-                                // Listeye ekle
-                                Playlist.Add(song);
+                                Songs.Add(song);
                             }
                             catch
                             {
-                                // Taglib okuyamazsa varsayılan resimle ekle
                                 song.AlbumArt = LoadDefaultImage();
-                                Playlist.Add(song);
+                                Songs.Add(song);
                             }
                         }
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Yükleme Hatası: {ex.Message}");
-            }
+            catch { }
         }
-
     }
-
 }
-
-   

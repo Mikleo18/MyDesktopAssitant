@@ -19,49 +19,9 @@ namespace MyDeskopAssitant
             var vm = new MainViewModel();
             this.DataContext = vm;
 
-            SetupPlayerEvents(vm);
+
         }
 
-        // --- PLAYER OLAYLARI ---
-        private void SetupPlayerEvents(MainViewModel mainVm)
-        {
-            // SEEK (Sarma)
-            mainVm.MusicVm.RequestSeek += (seconds) =>
-            {
-                if (GlobalPlayer.NaturalDuration.HasTimeSpan)
-                    GlobalPlayer.Position = TimeSpan.FromSeconds(seconds);
-            };
-
-            // PLAY/PAUSE
-            mainVm.MusicVm.PropertyChanged += (s, args) =>
-            {
-                if (args.PropertyName == nameof(MusicViewModel.IsPlaying))
-                {
-                    if (mainVm.MusicVm.IsPlaying) GlobalPlayer.Play();
-                    else GlobalPlayer.Pause();
-                }
-            };
-        }
-
-        private void GlobalPlayer_MediaOpened(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is MainViewModel mainVm && GlobalPlayer.NaturalDuration.HasTimeSpan)
-            {
-                mainVm.MusicVm.SetDuration(GlobalPlayer.NaturalDuration.TimeSpan);
-                mainVm.MusicVm.IsPlaying = true;
-                GlobalPlayer.Play();
-            }
-        }
-
-        private void GlobalPlayer_MediaEnded(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is MainViewModel mainVm)
-            {
-                mainVm.MusicVm.OnSongEnded();
-            }
-        }
-
-        // --- PENCERE KONTROLLERİ ---
 
         private void DragRow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
