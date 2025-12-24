@@ -97,6 +97,27 @@ If you just want to use the application without opening Visual Studio:
 
 3. **Enjoy:** The application will start immediately. (Note: Ensure all .dll files in that folder are present, as they are required dependencies.)
 
+## ⚙️ Configuration (API Key Setup)
+
+This project uses **OpenWeatherMap** to fetch real-time weather data. For security reasons, the API Key is **not included** in the source code. You must add your own key for the weather feature to work.
+
+### Step 1: Get a Free API Key
+1. Go to [OpenWeatherMap](https://openweathermap.org/) and sign up.
+2. Generate a free API Key from your account dashboard.
+
+### Step 2: Create the Config File
+1. In Visual Studio, right-click on the project name in **Solution Explorer**.
+2. Select **Add > New Item...** and create a file named `appsettings.json`.
+3. Paste the following code into the file and replace `PASTE_YOUR_KEY_HERE` with your actual API key:
+
+```json
+{
+  "OpenWeatherMap": {
+    "ApiKey": "PASTE_YOUR_KEY_HERE"
+  }
+}
+```
+
 ## 📄 License & Disclaimer
 
 This project is intended for **educational purposes only** .
